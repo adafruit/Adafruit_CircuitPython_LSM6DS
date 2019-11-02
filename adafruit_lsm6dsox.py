@@ -79,7 +79,7 @@ _LSM6DS0X_OUT_TEMP_L = const(0X20)
 class LSM6DSOX:
     """Driver for the LSM6DSOX 6-axis accelerometer and gyroscope.
 
-        :param ~busio.I2C i2c_bus: The I2C bus the MPU6050 is connected to.
+        :param ~busio.I2C i2c_bus: The I2C bus the LSM6DSOX is connected to.
         :param address: The I2C slave address of the sensor
 
     """
@@ -131,8 +131,7 @@ class LSM6DSOX:
         self.i2c_device = i2c_device.I2CDevice(i2c_bus, address)
 
         if self._chip_id != _LSM6DS0X_CHIP_ID:
-            raise RuntimeError("Failed to find MPU6050 - check your wiring!")
-        print("IT'S VERKINK!")
+            raise RuntimeError("Failed to find LSM6DSOX - check your wiring!")
         self.reset()
 
     def reset(self):

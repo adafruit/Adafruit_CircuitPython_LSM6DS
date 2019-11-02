@@ -1,0 +1,99 @@
+{
+    "sensor_name": "LSM6DS0X",
+    "default_address": 106,
+    "registers": {
+        "FUNC_CFG_ACCESS" : {
+            "address" : "01h",
+            "fields" :[
+                "FUNC_CFG_ACCESS",
+                "SHUB_REG_ACCESS",
+                null,
+                null,
+                null,
+                null,
+                null,
+                "OIS_CTRL_FROM_UI"
+            ]
+        },
+        "PIN_CTRL": {
+            "address" : "02h",
+            "fields" : ["OIS_PU_DIS","SDO_PU_EN", null, null, null, null, null, null]
+        },
+        "UI_INT_OIS": {
+            "address": "6Fh",
+            "fields" : ["INT2_DRDY_OIS", "LVL2_OIS", "DEN_LH_OIS", null, "SPI2_READ_EN", null, null, null]
+        },
+        "WHOAMI": {
+            "address": "0Fh",
+            "length" : 1,
+            "format_str" : ">b",
+            "human_name" : "chip_id"
+        },
+        "CTRL1_XL": {
+            "address" : "10h",
+            "fields" :["ODR_XL3", "ODR_XL2", "ODR_XL1", "ODR_XL0", "FS1_XL", "FS0_XL", "LPF2_XL_EN", null]
+        },
+        "CTRL3_C": {
+            "address" : "12h",
+            "fields":["BOOT", "BDU", "H_LACTIVE", "PP_OD", "SIM", "IF_INC", null, "SW_RESET"]
+        }, 
+        "CTRL_5_C" : {
+            "address" : "14h",
+            "fields" : [
+                "XL_ULP_EN",
+                "ROUNDING1",
+                "ROUNDING0",
+                "ROUNDING_STATUS",
+                "ST1_G",
+                "ST0_G",
+                "ST1_XL",
+                "ST0_XL"
+
+            ]
+        },
+        "MASTER_CONFIG": {
+            "address" : "14h",
+            "fields" : [
+                "RST_MASTER_REGS",
+                "WRITE_ONCE",
+                "START_CONFIG",
+                "PASS_THROUGH_MODE",
+                "SHUB_PU_EN",
+                "MASTER_ON",
+                "AUX_SENS_ON1",
+                "AUX_SENS_ON0"
+            ]
+        },
+        "CTRL9_XL" : {
+            "address" : "18h",
+            "fields" : [
+                "DEN_X",
+                "DEN_Y",
+                "DEN_Z",
+                "DEN_XL_G",
+                "DEN_XL_EN",
+                "DEN_LH",
+                "I3C_DISABLE",
+                null
+            ]
+        },
+        "OUT_TEMP_L": {
+            "address": "20h",
+            "format_str" : "<h",
+            "human_name" : "temperature"
+        },
+        "SPI2_CTRL1_OIS" : {
+            "address" : "70h",
+            "fields" : [
+                null,
+                "LVL1_OIS",
+                "SIM_OIS",
+                "Mode4_EN",
+                "FS1_G_OIS",
+                "FS0_G_OIS",
+                "FS_125_OIS",
+                "OIS_EN_SPI2"
+            ]
+        }
+    }   
+}

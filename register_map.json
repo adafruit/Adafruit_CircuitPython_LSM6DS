@@ -33,6 +33,10 @@
             "address" : "10h",
             "fields" :["ODR_XL3", "ODR_XL2", "ODR_XL1", "ODR_XL0", "FS1_XL", "FS0_XL", "LPF2_XL_EN", null]
         },
+        "CTRL2_G": {
+            "address" : "11h",
+            "fields" :["ODR_G3", "ODR_G2", "ODR_G1", "ODR_G0", "FS1_G", "FS0_G", "FS_125", null]
+        },
         "CTRL3_C": {
             "address" : "12h",
             "fields":["BOOT", "BDU", "H_LACTIVE", "PP_OD", "SIM", "IF_INC", null, "SW_RESET"]
@@ -40,6 +44,7 @@
         "CTRL_5_C" : {
             "address" : "14h",
             "fields" : [
+
                 "XL_ULP_EN",
                 "ROUNDING1",
                 "ROUNDING0",
@@ -81,6 +86,11 @@
             "address": "20h",
             "format_str" : "<h",
             "human_name" : "temperature"
+        },
+        "OUTX_L_G": {
+            "address": "22h",
+            "format_str" : "<h",
+            "human_name" : "gyro_x_low"
         },
         "SPI2_CTRL1_OIS" : {
             "address" : "70h",

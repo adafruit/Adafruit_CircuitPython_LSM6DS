@@ -21,6 +21,7 @@ print("Starting test")
 
 #VIN/VCC - You'll know pretty quick if it's not working 
 # 3Vo - test with A0
+
 # GND see VIN
 # SDA \
 # SCL _\ Pull ups tested via ADC, function by usage

@@ -52,7 +52,7 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_LSM6DSOX.git"
 from time import sleep
 from micropython import const
 import adafruit_bus_device.i2c_device as i2c_device
-from adafruit_register.i2c_struct import UnaryStruct, ROUnaryStruct
+from adafruit_register.i2c_struct import UnaryStruct, ROUnaryStruct, Struct
 from adafruit_register.i2c_struct_array import StructArray
 from adafruit_register.i2c_bits import RWBits
 from adafruit_register.i2c_bit import RWBit, ROBit
@@ -97,7 +97,6 @@ _MILLI_G_TO_ACCEL           = 0.00980665
 class Rate:
     """Options for `data_rate`"""
     RATE_SHUTDOWN = const(0)
-    RATE_1_6_HZ = const(0b1011)
     RATE_12_5_HZ = const(0b0001)
     RATE_26_HZ = const(0b0010)
     RATE_52_HZ = const(0b0011)
@@ -108,6 +107,10 @@ class Rate:
     RATE_1_66K_HZ = const(0b1000)
     RATE_3_33K_HZ = const(0b1001)
     RATE_6_66K_HZ = const(0b1010)
+    RATE_1_6_HZ = const(0b1011) # Accelerometer only
+
+class GyroRate:
+    """Options for `gyro_data_rate`"""
 
 class GyroRange:    
     """Options for `gyro_data_range`"""
@@ -137,7 +140,7 @@ class LSM6DSOX:
     """
 
 #ROUnaryStructs:
-    _chip_id = ROUnaryStruct(_LSM6DS0X_WHOAMI, ">b")
+    _chip_id = ROUnaryStruct(_LSM6DS0X_WHOAMI, "<b")
     _temperature = ROUnaryStruct(_LSM6DS0X_OUT_TEMP_L, "<h")
 
 #RWBits:
@@ -155,8 +158,8 @@ class LSM6DSOX:
     _fs_xl = RWBits(2, _LSM6DS0X_CTRL1_XL, 2)
     _data_rate = RWBits(4, _LSM6DS0X_CTRL1_XL, 4)
     
-    _gyro_data_rate = RWBits(2, _LSM6DS0X_CTRL2_G, 2)
-    _gyro_scale = RWBits(4, _LSM6DS0X_CTRL2_G, 4)
+    _gyro_data_rate = RWBits(4, _LSM6DS0X_CTRL2_G, 4)
+    _gyro_range = RWBits(2, _LSM6DS0X_CTRL2_G, 2)
 
     _sw_reset = RWBit(_LSM6DS0X_CTRL3_C, 0)
     _if_inc = RWBit(_LSM6DS0X_CTRL3_C, 2)
@@ -186,18 +189,12 @@ class LSM6DSOX:
     _den_x = RWBit(_LSM6DS0X_CTRL9_XL, 7)
 
 
-    _raw_temp = ROUnaryStruct(_LSM6DS0X_OUT_TEMP_L, "h")
+    _raw_temp = ROUnaryStruct(_LSM6DS0X_OUT_TEMP_L, "<h")
 
-    _raw_xl_x = ROUnaryStruct(_LSM6DS0X_OUTX_L_A, "h")
-    _raw_xl_y = ROUnaryStruct(_LSM6DS0X_OUTY_L_A, "h")
-    _raw_xl_z = ROUnaryStruct(_LSM6DS0X_OUTZ_L_A, "h")
+    _raw_accel_data = Struct(_LSM6DS0X_OUTX_L_A, "<hhh")
+    _raw_gyro_data = Struct(_LSM6DS0X_OUTX_L_G, "<hhh")
 
-    _raw_g_x = ROUnaryStruct(_LSM6DS0X_OUTX_L_G, "h")
-    _raw_g_y = ROUnaryStruct(_LSM6DS0X_OUTY_L_G, "h")
-    _raw_g_z = ROUnaryStruct(_LSM6DS0X_OUTZ_L_G, "h")
 
-    _raw_accel_data = StructArray(_LSM6DS0X_OUTX_L_A, "<h", 3)
-    _raw_gyro_data = StructArray(_LSM6DS0X_OUTX_L_G, "<h", 3)
 
     def __init__(self, i2c_bus, address=_LSM6DS0X_DEFAULT_ADDRESS):
         self.i2c_device = i2c_device.I2CDevice(i2c_bus, address)
@@ -206,57 +203,48 @@ class LSM6DSOX:
             raise RuntimeError("Failed to find LSM6DSOX - check your wiring!")
         self.reset()
         sleep(0.010)
-        # self._bdu = True
+        self._bdu = True
         sleep(0.010)
         self._data_rate = 3
         sleep(0.010)
         self._gyro_data_rate = 3
+        sleep(0.10)
+        self._cached_range = 0                                                      #set range also
         sleep(0.010)
-        # self._cached_mode = 0
-        self._cached_range = 0
-        sleep(0.010)
-        self._cached_gyro_range = 0
+        self._cached_gyro_range = GyroRange.RANGE_250_DPS
+        self._gyro_range = GyroRange.RANGE_250_DPS
         sleep(0.010)
         self._if_inc = True
-        sleep(0.010)
+        sleep(0.20)
 
 
     def reset(self):
         self._sw_reset = True
         while self._sw_reset:
             sleep(0.001)
-        #self._boot = True
-        #while self._boot:
-        #    sleep(0.001)
+        self._boot = True
+        while self._boot:
+            sleep(0.001)
         
     @property
     def acceleration(self):
-        """Acceleration!"""  
-        x = self._scale_xl_data(self._raw_accel_data[0][0])
-        y = self._scale_xl_data(self._raw_accel_data[1][0])
-        z = self._scale_xl_data(self._raw_accel_data[2][0])
-        # x = self._scale_xl_data(self._raw_xl_x)
-        # y = self._scale_xl_data(self._raw_xl_y)
-        # z = self._scale_xl_data(self._raw_xl_z)
+        """Acceleration!"""
+        raw_accel_data = self._raw_accel_data
+        x = self._scale_xl_data(raw_accel_data[0])
+        y = self._scale_xl_data(raw_accel_data[1])
+        z = self._scale_xl_data(raw_accel_data[2])
+
         return(x, y, z)
 
     @property
     def gyro(self):
         """ME GRYO, ME FLY PLANE"""
         raw_gyro_data = self._raw_gyro_data
-        # self._raw_g_x = ROUnaryStruct(_LSM6DS0X_OUTX_L_G, "h")
-        # self._raw_g_y = ROUnaryStruct(_LSM6DS0X_OUTY_L_G, "h")
-        # self._raw_g_z = ROUnaryStruct(_LSM6DS0X_OUTZ_L_G, "h")
-
-        # x = self._scale_gyro_data(raw_gyro_data[0][0])
-        # y = self._scale_gyro_data(raw_gyro_data[1][0])
-        # z = self._scale_gyro_data(raw_gyro_data[2][0])
-        x = self._scale_gyro_data(self._raw_g_x)
-        y = self._scale_gyro_data(self._raw_g_y)
-        z = self._scale_gyro_data(self._raw_g_z)
+        x = self._scale_gyro_data(raw_gyro_data[0])
+        y = self._scale_gyro_data(raw_gyro_data[1])
+        z = self._scale_gyro_data(raw_gyro_data[2])
 
         return (x, y, z)
-
 
     def _scale_xl_data(self, raw_measurement):
         lsb = self._lsb()
@@ -265,7 +253,7 @@ class LSM6DSOX:
     def _scale_gyro_data(self, raw_measurement):
         lsb = self._gyro_lsb()
 
-        return raw_measurement /lsb
+        return raw_measurement * lsb / 1000
 
     @property
     def range(self):
@@ -280,7 +268,21 @@ class LSM6DSOX:
         self._fs_xl = value
         self._cached_range = value
 
-    def _lsb(self): #pylint:disable=too-many-branches
+    @property
+    def gyro_range(self):
+        """Adjusts the range of values that the sensor can measure, from +- 2G to +-16G
+        Note that larger ranges will be less accurate. Must be a `Range`"""
+        return self._cached_gyro_range
+
+    @gyro_range.setter
+    def gyro_range(self, value):
+        if value < 0 or value > 3:
+            raise AttributeError("range must be a `Range`")
+        self._gyro_range = value
+        self._cached_gyro_range = value
+        sleep(.2) #
+
+    def _lsb(self):
         if self._cached_range is Range.RANGE_2G:
             lsb = 0.061
         elif self._cached_range is Range.RANGE_4G:
@@ -291,7 +293,7 @@ class LSM6DSOX:
             lsb = 0.488
         return lsb
 
-    def _gyro_lsb(self): #pylint:disable=too-many-branches
+    def _gyro_lsb(self):
         if self._cached_gyro_range is GyroRange.RANGE_250_DPS:
             lsb = 8.75
         elif self._cached_gyro_range is GyroRange.RANGE_500_DPS:
@@ -310,127 +312,27 @@ class LSM6DSOX:
 
     @data_rate.setter
     def data_rate(self, value):
-        if value < 0 or value > 9:
+    
+        if value not in [Rate.RATE_SHUTDOWN, Rate.RATE_12_5_HZ, Rate.RATE_26_HZ, Rate.RATE_52_HZ,
+            Rate.RATE_104_HZ, Rate.RATE_208_HZ, Rate.RATE_416_HZ, Rate.RATE_833_HZ,
+            Rate.RATE_1_66K_HZ, Rate.RATE_3_33K_HZ, Rate.RATE_6_66K_HZ, Rate.RATE_1_6_HZ
+        ]:
             raise AttributeError("data_rate must be a `Rate`")
 
         self._data_rate = value
 
     @property
     def gyro_data_rate(self):
-        """Select the rate at which the sensor takes measurements. Must be a `GyroRate`"""
+        """Select the rate at which the sensor takes measurements. Must be a `Rate`"""
         return self._gyro_data_rate
 
     @gyro_data_rate.setter
     def gyro_data_rate(self, value):
-        if value < 0 or value > 9:
-            raise AttributeError("data_rate must be a `GyroRate`")
+        if value not in [Rate.RATE_SHUTDOWN, Rate.RATE_12_5_HZ, Rate.RATE_26_HZ, Rate.RATE_52_HZ,
+            Rate.RATE_104_HZ, Rate.RATE_208_HZ, Rate.RATE_416_HZ, Rate.RATE_833_HZ,
+            Rate.RATE_1_66K_HZ, Rate.RATE_3_33K_HZ, Rate.RATE_6_66K_HZ
+        ]:
+            raise AttributeError("gyro_data_rate must be a `GyroRate`")
 
         self._gyro_data_rate = value
 
-
-"""
-/* Enable register address automatically incremented during a multiple byte
-access with a serial interface. */
-if (lsm6dsox_auto_increment_set(&reg_ctx, PROPERTY_ENABLE) != LSM6DSOX_OK)
-  ret = lsm6dsox_read_reg(ctx, LSM6DSOX_CTRL3_C, (uint8_t*)&reg, 1);
-
-
-
-/* Output data rate selection - power down. */
-if (lsm6dsox_xl_data_rate_set(&reg_ctx, LSM6DSOX_XL_ODR_OFF) != LSM6DSOX_OK)
-  ret = lsm6dsox_read_reg(ctx, LSM6DSOX_CTRL1_XL, (uint8_t*)&reg, 1);
-
-/* Enable BDU */
-if (lsm6dsox_block_data_update_set(&reg_ctx, PROPERTY_ENABLE) != LSM6DSOX_OK)
-  ret = lsm6dsox_read_reg(ctx, LSM6DSOX_CTRL3_C, (uint8_t*)&reg, 1);
-
-NEEDED?
-/* Disable I3C */
-if (lsm6dsox_i3c_disable_set(&reg_ctx, LSM6DSOX_I3C_DISABLE) != LSM6DSOX_OK)
-
-
-  lsm6dsox_i3c_bus_avb_t i3c_bus_avb;
-  lsm6dsox_ctrl9_xl_t ctrl9_xl;
-  int32_t ret;
-
-  ret = lsm6dsox_read_reg(ctx, LSM6DSOX_CTRL9_XL, (uint8_t*)&ctrl9_xl, 1);
-  if (ret == 0) {
-    ctrl9_xl.i3c_disable = ((uint8_t)val & 0x80U) >> 7;
-    ret = lsm6dsox_write_reg(ctx, LSM6DSOX_CTRL9_XL, (uint8_t*)&ctrl9_xl, 1);
-  }
-  if (ret == 0) {
-
-    ret = lsm6dsox_read_reg(ctx, LSM6DSOX_I3C_BUS_AVB,
-                           (uint8_t*)&i3c_bus_avb, 1);
-  }
-  if (ret == 0) {
-    i3c_bus_avb.i3c_bus_avb_sel = (uint8_t)val & 0x03U;
-    ret = lsm6dsox_write_reg(ctx, LSM6DSOX_I3C_BUS_AVB,
-                            (uint8_t*)&i3c_bus_avb, 1);
-  }
-
-
-/* Enable register address automatically incremented during a multiple byte
-access with a serial interface. */
-if (lsm6dsox_auto_increment_set(&reg_ctx, PROPERTY_ENABLE) != LSM6DSOX_OK)
-  ret = lsm6dsox_read_reg(ctx, LSM6DSOX_CTRL3_C, (uint8_t*)&reg, 1);
-
-/* Enable BDU */
-if (lsm6dsox_block_data_update_set(&reg_ctx, PROPERTY_ENABLE) != LSM6DSOX_OK)
-  ret = lsm6dsox_read_reg(ctx, LSM6DSOX_CTRL3_C, (uint8_t*)&reg, 1);
-
-/* FIFO mode selection */
-if (lsm6dsox_fifo_mode_set(&reg_ctx, LSM6DSOX_BYPASS_MODE) != LSM6DSOX_OK)
-
-/* Select default output data rate. */
-acc_odr = LSM6DSOX_XL_ODR_104Hz;
-
-/* Output data rate selection - power down. */
-if (lsm6dsox_xl_data_rate_set(&reg_ctx, LSM6DSOX_XL_ODR_OFF) != LSM6DSOX_OK)
-  ret = lsm6dsox_read_reg(ctx, LSM6DSOX_CTRL1_XL, (uint8_t*)&reg, 1);
-
-/* Full scale selection. */
-if (lsm6dsox_xl_full_scale_set(&reg_ctx, LSM6DSOX_2g) != LSM6DSOX_OK)
-
-/* Select default output data rate. */
-gyro_odr = LSM6DSOX_GY_ODR_104Hz;
-
-/* Output data rate selection - power down. */
-if (lsm6dsox_gy_data_rate_set(&reg_ctx, LSM6DSOX_GY_ODR_OFF) != LSM6DSOX_OK)
-
-/* Full scale selection. */
-if (lsm6dsox_gy_full_scale_set(&reg_ctx, LSM6DSOX_2000dps) != LSM6DSOX_OK)
-
-###################
-  /* Check if the component is already enabled */
-  /* Output data rate selection. */
-  if (lsm6dsox_gy_data_rate_set(&reg_ctx, gyro_odr) != LSM6DSOX_OK)
-  {
-    return LSM6DSOX_ERROR;
-  }
-
-  gyro_is_enabled = 1;
-#############
-  /* Get current output data rate. */
-  if (lsm6dsox_gy_data_rate_get(&reg_ctx, &gyro_odr) != LSM6DSOX_OK)
-  
-
-  /* Output data rate selection - power down. */
-  if (lsm6dsox_gy_data_rate_set(&reg_ctx, LSM6DSOX_GY_ODR_OFF) != LSM6DSOX_OK)
-  
-  gyro_is_enabled = 0;
-############
-  /* Output data rate selection. */
-  if (lsm6dsox_xl_data_rate_set(&reg_ctx, acc_odr) != LSM6DSOX_OK)
-  
-  acc_is_enabled = 1;
-###############
-  /* Get current output data rate. */
-  if (lsm6dsox_xl_data_rate_get(&reg_ctx, &acc_odr) != LSM6DSOX_OK)
-
-  /* Output data rate selection - power down. */
-  if (lsm6dsox_xl_data_rate_set(&reg_ctx, LSM6DSOX_XL_ODR_OFF) != LSM6DSOX_OK)
-
-  acc_is_enabled = 0;
-##################
-"""

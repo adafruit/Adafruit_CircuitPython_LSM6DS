@@ -186,7 +186,6 @@ class LSM6DSOX:
     _den_x = RWBit(_LSM6DS0X_CTRL9_XL, 7)
 
 
-
     _raw_temp = ROUnaryStruct(_LSM6DS0X_OUT_TEMP_L, "h")
 
     _raw_xl_x = ROUnaryStruct(_LSM6DS0X_OUTX_L_A, "h")
@@ -197,8 +196,8 @@ class LSM6DSOX:
     _raw_g_y = ROUnaryStruct(_LSM6DS0X_OUTY_L_G, "h")
     _raw_g_z = ROUnaryStruct(_LSM6DS0X_OUTZ_L_G, "h")
 
-    _raw_accel_data = StructArray(_LSM6DS0X_OUTX_L_A, ">h", 3)
-    _raw_gyro_data = StructArray(_LSM6DS0X_OUTX_L_G, ">h", 3)
+    _raw_accel_data = StructArray(_LSM6DS0X_OUTX_L_A, "<h", 3)
+    _raw_gyro_data = StructArray(_LSM6DS0X_OUTX_L_G, "<h", 3)
 
     def __init__(self, i2c_bus, address=_LSM6DS0X_DEFAULT_ADDRESS):
         self.i2c_device = i2c_device.I2CDevice(i2c_bus, address)
@@ -207,7 +206,7 @@ class LSM6DSOX:
             raise RuntimeError("Failed to find LSM6DSOX - check your wiring!")
         self.reset()
         sleep(0.010)
-        self._bdu = True
+        # self._bdu = True
         sleep(0.010)
         self._data_rate = 3
         sleep(0.010)
@@ -226,19 +225,19 @@ class LSM6DSOX:
         self._sw_reset = True
         while self._sw_reset:
             sleep(0.001)
-        self._boot = True
-        while self._boot:
-            sleep(0.001)
+        #self._boot = True
+        #while self._boot:
+        #    sleep(0.001)
         
     @property
     def acceleration(self):
         """Acceleration!"""  
-        # print(self._raw_xl_x, end=" ")
-        # print(self._raw_xl_y, end=" ")
-        # print(self._raw_xl_z)
-        x = self._scale_xl_data(self._raw_xl_x)
-        y = self._scale_xl_data(self._raw_xl_y)
-        z = self._scale_xl_data(self._raw_xl_z)
+        x = self._scale_xl_data(self._raw_accel_data[0][0])
+        y = self._scale_xl_data(self._raw_accel_data[1][0])
+        z = self._scale_xl_data(self._raw_accel_data[2][0])
+        # x = self._scale_xl_data(self._raw_xl_x)
+        # y = self._scale_xl_data(self._raw_xl_y)
+        # z = self._scale_xl_data(self._raw_xl_z)
         return(x, y, z)
 
     @property

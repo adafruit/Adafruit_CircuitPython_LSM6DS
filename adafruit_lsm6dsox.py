@@ -131,20 +131,24 @@ GyroRange.add_values((
     ('RANGE_2000_DPS', 3, 2000, 70.0)
 ))
 
-class Rate:
+class Rate(CV):
     """Options for `data_rate`"""
-    RATE_SHUTDOWN = const(0)
-    RATE_12_5_HZ = const(0b0001)
-    RATE_26_HZ = const(0b0010)
-    RATE_52_HZ = const(0b0011)
-    RATE_104_HZ = const(0b0100)
-    RATE_208_HZ = const(0b0101)
-    RATE_416_HZ = const(0b0110)
-    RATE_833_HZ = const(0b0111)
-    RATE_1_66K_HZ = const(0b1000)
-    RATE_3_33K_HZ = const(0b1001)
-    RATE_6_66K_HZ = const(0b1010)
-    RATE_1_6_HZ = const(0b1011) # Accelerometer only, 1.6 Hz low power 12.5 Hz (high performance)
+    pass
+
+Rate.add_values((
+    ('RATE_SHUTDOWN', 0, 0, None),
+    ('RATE_12_5_HZ', 1, 12.5, None),
+    ('RATE_26_HZ', 2, 26.0, None),
+    ('RATE_52_HZ', 3, 52.0, None),
+    ('RATE_104_HZ', 4, 104.0, None),
+    ('RATE_208_HZ', 5, 208.0, None),
+    ('RATE_416_HZ', 6, 416.0, None),
+    ('RATE_833_HZ', 7, 833.0, None),
+    ('RATE_1_66K_HZ', 8, 1066.0, None),
+    ('RATE_3_33K_HZ', 9, 3033.0, None),
+    ('RATE_6_66K_HZ', 10, 6066.0, None),
+    ('RATE_1_6_HZ', 11, 1.6, None)
+))
 
 class LSM6DSOX:
     """Driver for the LSM6DSOX 6-axis accelerometer and gyroscope.
@@ -217,8 +221,8 @@ class LSM6DSOX:
         self.reset()
 
         self._bdu = True
-        self._accel_data_rate = 3
-        self._gyro_data_rate = 3
+        self._accel_data_rate = Rate.RATE_104_HZ
+        self._gyro_data_rate = Rate.RATE_104_HZ
         self._accel_range = AccelRange.RANGE_4G
         self._cached_accel_range = self._accel_range
         self._gyro_range = GyroRange.RANGE_250_DPS
@@ -290,31 +294,28 @@ class LSM6DSOX:
 
     @property
     def accelerometer_data_rate(self):
-        """Select the rate at which the sensor takes measurements. Must be a `Rate`"""
+        """Select the rate at which the accelerometer takes measurements. Must be a `Rate`"""
         return self._accel_data_rate
 
     @accelerometer_data_rate.setter
     def accelerometer_data_rate(self, value):
 
-        if value not in [Rate.RATE_SHUTDOWN, Rate.RATE_12_5_HZ, Rate.RATE_26_HZ, Rate.RATE_52_HZ,
-            Rate.RATE_104_HZ, Rate.RATE_208_HZ, Rate.RATE_416_HZ, Rate.RATE_833_HZ,
-            Rate.RATE_1_66K_HZ, Rate.RATE_3_33K_HZ, Rate.RATE_6_66K_HZ, Rate.RATE_1_6_HZ
-        ]:
-            raise AttributeError("data_rate must be a `Rate`")
+        if not Rate.is_valid(value):
+            raise AttributeError("accelerometer_data_rate must be a `Rate`")
 
         self._accel_data_rate = value
+        # sleep(.2) # needed to let new range settle
+
 
     @property
-    def gyro_accel_data_rate(self):
-        """Select the rate at which the sensor takes measurements. Must be a `Rate`"""
+    def gyro_data_rate(self):
+        """Select the rate at which the gyro takes measurements. Must be a `Rate`"""
         return self._gyro_accel_data_rate
 
-    @gyro_accel_data_rate.setter
-    def gyro_accel_data_rate(self, value):
-        if value not in [Rate.RATE_SHUTDOWN, Rate.RATE_12_5_HZ, Rate.RATE_26_HZ, Rate.RATE_52_HZ,
-            Rate.RATE_104_HZ, Rate.RATE_208_HZ, Rate.RATE_416_HZ, Rate.RATE_833_HZ,
-            Rate.RATE_1_66K_HZ, Rate.RATE_3_33K_HZ, Rate.RATE_6_66K_HZ
-        ]:
-            raise AttributeError("gyro_accel_data_rate must be a `Rate`")
+    @gyro_data_rate.setter
+    def gyro_data_rate(self, value):
+        if not Rate.is_valid(value):
+            raise AttributeError("gyro_data_rate must be a `Rate`")
 
         self._gyro_accel_data_rate = value
+        # sleep(.2) # needed to let new range settle

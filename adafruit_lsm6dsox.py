@@ -91,43 +91,45 @@ _LSM6DSOX_OUTZ_L_A = const(0x2C)
 _LSM6DSOX_OUTZ_H_A = const(0x2D)
 
 _MILLI_G_TO_ACCEL           = 0.00980665
-
 class CV:
     """struct helper"""
+
     @classmethod
-    def _def_value(cls, attr, value, string, lsb):
-        setattr(cls, attr, value)
-        if not hasattr(cls, 'name'):
-            cls.string = {}
-        cls.string[value] = string
-        if not hasattr(cls, 'lsb'):
-            cls.lsb = {}
-        cls.lsb[value] = lsb
-        if not hasattr(cls, '_valid'):
-            cls._valid = []
-        cls._valid.append(value)
+    def add_values(cls, value_tuples):
+        cls.string = {}
+        cls.lsb = {}
+
+        for value_tuple in value_tuples:
+            name, value, string, lsb = value_tuple
+            setattr(cls, name, value)
+            cls.string[value] = string
+            cls.lsb[value] = lsb
 
     @classmethod
     def is_valid(cls, value):
-        return value in cls._valid
-
+        return value in cls.string
 
 class AccelRange(CV):
     """Options for `accelerometer_range`"""
     pass
 
-AccelRange._def_value('RANGE_2G', 0, "2G", 0.061)
-AccelRange._def_value('RANGE_16G', 1, "16G", 0.488)
-AccelRange._def_value('RANGE_4G', 2, "4G", 0.122)
-AccelRange._def_value('RANGE_8G', 3, "8G", 0.244)
+AccelRange.add_values((
+    ('RANGE_2G', 0, 2, 0.061),
+    ('RANGE_16G', 1, 16, 0.488),
+    ('RANGE_4G', 2, 4, 0.122),
+    ('RANGE_8G', 3, 8, 0.244)
+))
 
-class GyroRange:
+class GyroRange(CV):
     """Options for `gyro_data_range`"""
-    RANGE_250_DPS = const(0)
-    RANGE_500_DPS = const(1)
-    RANGE_1000_DPS = const(2)
-    RANGE_2000_DPS = const(3)
-# 1011 1.6 Hz (low power only) 12.5 Hz (high performance)
+    pass
+
+GyroRange.add_values((
+    ('RANGE_250_DPS', 0, 250, 8.75),
+    ('RANGE_500_DPS', 1, 500, 17.50),
+    ('RANGE_1000_DPS', 2, 1000, 35.0),
+    ('RANGE_2000_DPS', 3, 2000, 70.0)
+))
 
 class Rate:
     """Options for `data_rate`"""
@@ -142,10 +144,7 @@ class Rate:
     RATE_1_66K_HZ = const(0b1000)
     RATE_3_33K_HZ = const(0b1001)
     RATE_6_66K_HZ = const(0b1010)
-
     RATE_1_6_HZ = const(0b1011) # Accelerometer only, 1.6 Hz low power 12.5 Hz (high performance)
-
-
 
 class LSM6DSOX:
     """Driver for the LSM6DSOX 6-axis accelerometer and gyroscope.
@@ -210,13 +209,6 @@ class LSM6DSOX:
     _raw_accel_data = Struct(_LSM6DSOX_OUTX_L_A, "<hhh")
     _raw_gyro_data = Struct(_LSM6DSOX_OUTX_L_G, "<hhh")
 
-    _gyro_range_lsb = {
-        GyroRange.RANGE_250_DPS : 8.75,
-        GyroRange.RANGE_500_DPS : 17.50,
-        GyroRange.RANGE_1000_DPS : 35.0,
-        GyroRange.RANGE_2000_DPS :70
-    }
-
     def __init__(self, i2c_bus, address=_LSM6DSOX_DEFAULT_ADDRESS):
         self.i2c_device = i2c_device.I2CDevice(i2c_bus, address)
 
@@ -241,7 +233,7 @@ class LSM6DSOX:
         self._boot = True
         while self._boot:
             sleep(0.001)
-        
+
     @property
     def acceleration(self):
         """Acceleration!"""
@@ -266,11 +258,11 @@ class LSM6DSOX:
         return raw_measurement * AccelRange.lsb[self._cached_accel_range] * _MILLI_G_TO_ACCEL
 
     def _scale_gyro_data(self, raw_measurement):
-        return raw_measurement * self._gyro_range_lsb[self._cached_gyro_range] / 1000
+        return raw_measurement * GyroRange.lsb[self._cached_gyro_range] / 1000
 
     @property
     def accelerometer_range(self):
-        """Adjusts the range of values that the sensor can measure, from +- 2G to +-16G
+        """Adjusts the range of values that the sensor can measure, from +/- 2G to +/-16G
         Note that larger ranges will be less accurate. Must be an `AccelRange`"""
         return self._cached_accel_range
 
@@ -280,31 +272,30 @@ class LSM6DSOX:
             raise AttributeError("range must be an `AccelRange`")
         self._accel_range = value
         self._cached_accel_range = value
+        sleep(.2) # needed to let new range settle
 
     @property
     def gyro_range(self):
-        """Adjusts the range of values that the sensor can measure, from +- 2G to +-16G
-        Note that larger ranges will be less accurate. Must be a `Range`"""
+        """Adjusts the range of values that the sensor can measure, from 250 Degrees/second to 2000
+        degrees/s. Note that larger ranges will be less accurate. Must be a `GyroRange`"""
         return self._cached_gyro_range
 
     @gyro_range.setter
     def gyro_range(self, value):
-        if not value in [GyroRange.RANGE_250_DPS, GyroRange.RANGE_500_DPS,
-            GyroRange.RANGE_1000_DPS, GyroRange.RANGE_2000_DPS
-            ]:
-            raise AttributeError("range must be a `Range`")
+        if not GyroRange.is_valid(value):
+            raise AttributeError("range must be a `GyroRange`")
         self._gyro_range = value
         self._cached_gyro_range = value
-        sleep(.2) #
+        sleep(.2) # needed to let new range settle
 
     @property
-    def data_rate(self):
+    def accelerometer_data_rate(self):
         """Select the rate at which the sensor takes measurements. Must be a `Rate`"""
         return self._accel_data_rate
 
-    @data_rate.setter
-    def data_rate(self, value):
-    
+    @accelerometer_data_rate.setter
+    def accelerometer_data_rate(self, value):
+
         if value not in [Rate.RATE_SHUTDOWN, Rate.RATE_12_5_HZ, Rate.RATE_26_HZ, Rate.RATE_52_HZ,
             Rate.RATE_104_HZ, Rate.RATE_208_HZ, Rate.RATE_416_HZ, Rate.RATE_833_HZ,
             Rate.RATE_1_66K_HZ, Rate.RATE_3_33K_HZ, Rate.RATE_6_66K_HZ, Rate.RATE_1_6_HZ
@@ -327,4 +318,3 @@ class LSM6DSOX:
             raise AttributeError("gyro_accel_data_rate must be a `Rate`")
 
         self._gyro_accel_data_rate = value
-

@@ -7,7 +7,7 @@ i2c = busio.I2C(board.SCL, board.SDA)
 sox = LSM6DSOX(i2c)
 
 sox.accelerometer_range = AccelRange.RANGE_16G
-print("Accelerometer range: %d G"%AccelRange.string[sox.accelerometer_range])
+print("Accelerometer range set to: %d G"%AccelRange.string[sox.accelerometer_range])
 
 sox.gyro_range = GyroRange.RANGE_500_DPS
 print("Gyro range set to: %d DPS"%GyroRange.string[sox.gyro_range])
@@ -33,3 +33,7 @@ for gyro_range in [GyroRange.RANGE_250_DPS, GyroRange.RANGE_500_DPS,
     sox.gyro_range = gyro_range
     print("Non movement is %.2f degrees/s when gyro range is %d DPS"%
         (sox.gyro[2], GyroRange.string[sox.gyro_range]))
+
+while True:
+    print("Accel X:%.2f Y:%.2f Z:%.2f ms^2 Gyro X:%.2f Y:%.2f Z:%.2f degrees/s"%
+        (sox.acceleration+sox.gyro))

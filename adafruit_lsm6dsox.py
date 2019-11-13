@@ -221,13 +221,16 @@ class LSM6DSOX:
         self.reset()
 
         self._bdu = True
+        self._i3c_disable = True
+        self._if_inc = True
+
         self._accel_data_rate = Rate.RATE_104_HZ
         self._gyro_data_rate = Rate.RATE_104_HZ
+
         self._accel_range = AccelRange.RANGE_4G
         self._cached_accel_range = self._accel_range
         self._gyro_range = GyroRange.RANGE_250_DPS
         self._cached_gyro_range = self._gyro_range
-        self._if_inc = True
 
 
     def reset(self):

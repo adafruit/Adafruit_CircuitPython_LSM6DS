@@ -33,18 +33,17 @@ Implementation Notes
 
 **Hardware:**
 
-.. todo:: Add links to any specific hardware product page(s), or category page(s). Use unordered list & hyperlink rST
-   inline format: "* `Link Text <url>`_"
+* `Adafruit LSM6DSOX Breakout https://www.adafruit.com/products/4438`_
+
 
 **Software and Dependencies:**
 
 * Adafruit CircuitPython firmware for the supported boards:
   https://github.com/adafruit/circuitpython/releases
 
-.. todo:: Uncomment or remove the Bus Device and/or the Register library dependencies based on the library's use of either.
 
-# * Adafruit's Bus Device library: https://github.com/adafruit/Adafruit_CircuitPython_BusDevice
-# * Adafruit's Register library: https://github.com/adafruit/Adafruit_CircuitPython_Register
+* Adafruit's Bus Device library: https://github.com/adafruit/Adafruit_CircuitPython_BusDevice
+* Adafruit's Register library: https://github.com/adafruit/Adafruit_CircuitPython_Register
 """
 
 __version__ = "0.0.0-auto.0"
@@ -52,17 +51,16 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_LSM6DSOX.git"
 from time import sleep
 from micropython import const
 import adafruit_bus_device.i2c_device as i2c_device
-from adafruit_register.i2c_struct import UnaryStruct, ROUnaryStruct, Struct
-from adafruit_register.i2c_struct_array import StructArray
+from adafruit_register.i2c_struct import ROUnaryStruct, Struct
 from adafruit_register.i2c_bits import RWBits
-from adafruit_register.i2c_bit import RWBit, ROBit
-
+from adafruit_register.i2c_bit import RWBit
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_LSM6DSOX.git"
 
 
 _LSM6DSOX_DEFAULT_ADDRESS = const(0x6a)
 _LSM6DSOX_CHIP_ID = const(0x6C)
+_ISM330DHCX_CHIP_ID = const(0x6B)
 
 
 _LSM6DSOX_FUNC_CFG_ACCESS = const(0x1)
@@ -90,12 +88,14 @@ _LSM6DSOX_OUTY_H_A = const(0x2B)
 _LSM6DSOX_OUTZ_L_A = const(0x2C)
 _LSM6DSOX_OUTZ_H_A = const(0x2D)
 
-_MILLI_G_TO_ACCEL           = 0.00980665
+_MILLI_G_TO_ACCEL = 0.00980665
+
 class CV:
     """struct helper"""
 
     @classmethod
     def add_values(cls, value_tuples):
+        "creates CV entires"
         cls.string = {}
         cls.lsb = {}
 
@@ -107,11 +107,12 @@ class CV:
 
     @classmethod
     def is_valid(cls, value):
+        "Returns true if the given value is a member of the CV"
         return value in cls.string
 
 class AccelRange(CV):
     """Options for `accelerometer_range`"""
-    pass
+    pass #pylint: disable=unnecessary-pass
 
 AccelRange.add_values((
     ('RANGE_2G', 0, 2, 0.061),
@@ -122,7 +123,7 @@ AccelRange.add_values((
 
 class GyroRange(CV):
     """Options for `gyro_data_range`"""
-    pass
+    pass #pylint: disable=unnecessary-pass
 
 GyroRange.add_values((
     ('RANGE_250_DPS', 0, 250, 8.75),
@@ -133,7 +134,7 @@ GyroRange.add_values((
 
 class Rate(CV):
     """Options for `data_rate`"""
-    pass
+    pass #pylint: disable=unnecessary-pass
 
 Rate.add_values((
     ('RATE_SHUTDOWN', 0, 0, None),
@@ -150,7 +151,8 @@ Rate.add_values((
     ('RATE_1_6_HZ', 11, 1.6, None)
 ))
 
-class LSM6DSOX:
+class LSM6DSOX: #pylint: disable=too-many-instance-attributes
+
     """Driver for the LSM6DSOX 6-axis accelerometer and gyroscope.
 
         :param ~busio.I2C i2c_bus: The I2C bus the LSM6DSOX is connected to.
@@ -173,10 +175,10 @@ class LSM6DSOX:
     _lvl2_ois = RWBit(_LSM6DSOX_UI_INT_OIS, 6)
     _int2_drdy_ois = RWBit(_LSM6DSOX_UI_INT_OIS, 7)
     _lpf_xl = RWBit(_LSM6DSOX_CTRL1_XL, 1)
-    
+
     _accel_range = RWBits(2, _LSM6DSOX_CTRL1_XL, 2)
     _accel_data_rate = RWBits(4, _LSM6DSOX_CTRL1_XL, 4)
-    
+
     _gyro_data_rate = RWBits(4, _LSM6DSOX_CTRL2_G, 4)
     _gyro_range = RWBits(2, _LSM6DSOX_CTRL2_G, 2)
 
@@ -200,13 +202,6 @@ class LSM6DSOX:
     _write_once = RWBit(_LSM6DSOX_MASTER_CONFIG, 6)
     _rst_master_regs = RWBit(_LSM6DSOX_MASTER_CONFIG, 7)
     _i3c_disable = RWBit(_LSM6DSOX_CTRL9_XL, 1)
-    _den_lh = RWBit(_LSM6DSOX_CTRL9_XL, 2)
-    _den_xl_en = RWBit(_LSM6DSOX_CTRL9_XL, 3)
-    _den_xl_g = RWBit(_LSM6DSOX_CTRL9_XL, 4)
-    _den_z = RWBit(_LSM6DSOX_CTRL9_XL, 5)
-    _den_y = RWBit(_LSM6DSOX_CTRL9_XL, 6)
-    _den_x = RWBit(_LSM6DSOX_CTRL9_XL, 7)
-
 
     _raw_temp = ROUnaryStruct(_LSM6DSOX_OUT_TEMP_L, "<h")
 
@@ -216,24 +211,25 @@ class LSM6DSOX:
     def __init__(self, i2c_bus, address=_LSM6DSOX_DEFAULT_ADDRESS):
         self.i2c_device = i2c_device.I2CDevice(i2c_bus, address)
 
-        if self._chip_id != _LSM6DSOX_CHIP_ID:
-            raise RuntimeError("Failed to find LSM6DSOX - check your wiring!")
+        if self._chip_id not in [_LSM6DSOX_CHIP_ID, _ISM330DHCX_CHIP_ID]:
+            raise RuntimeError("Failed to find LSM6DSOX or ISM330DHCX - check your wiring!")
         self.reset()
 
         self._bdu = True
         self._i3c_disable = True
         self._if_inc = True
 
-        self._accel_data_rate = Rate.RATE_104_HZ
-        self._gyro_data_rate = Rate.RATE_104_HZ
+        self._accel_data_rate = Rate.RATE_104_HZ #pylint: disable=no-member
+        self._gyro_data_rate = Rate.RATE_104_HZ #pylint: disable=no-member
 
-        self._accel_range = AccelRange.RANGE_4G
+        self._accel_range = AccelRange.RANGE_4G #pylint: disable=no-member
         self._cached_accel_range = self._accel_range
-        self._gyro_range = GyroRange.RANGE_250_DPS
+        self._gyro_range = GyroRange.RANGE_250_DPS #pylint: disable=no-member
         self._cached_gyro_range = self._gyro_range
 
 
     def reset(self):
+        "Resets the sensor's configuration into an initial state"
         self._sw_reset = True
         while self._sw_reset:
             sleep(0.001)

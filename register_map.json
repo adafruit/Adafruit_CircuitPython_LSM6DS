@@ -35,7 +35,16 @@
         },
         "CTRL2_G": {
             "address" : "11h",
-            "fields" :["ODR_G3", "ODR_G2", "ODR_G1", "ODR_G0", "FS1_G", "FS0_G", "FS_125", null]
+            "fields" :["ODR_G3", "ODR_G2", "ODR_G1", "ODR_G0", "FS1_G", "FS0_G", "FS_125", null],
+            "cvs" : {
+                "ODR": [
+                    ["250 DPS", 0],
+                    ["500 DPS", 1],
+                    ["1000 DPS", 2],
+                    ["2000 DPS", 3]
+                ]
+
+            }
         },
         "CTRL3_C": {
             "address" : "12h",

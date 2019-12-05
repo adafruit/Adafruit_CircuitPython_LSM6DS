@@ -33,7 +33,7 @@ Implementation Notes
 
 **Hardware:**
 
-* `Adafruit LSM6DSOX Breakout https://www.adafruit.com/products/4438`_
+* Adafruit LSM6DSOX Breakout <https://www.adafruit.com/products/4438>
 
 
 **Software and Dependencies:**
@@ -111,7 +111,7 @@ class CV:
         return value in cls.string
 
 class AccelRange(CV):
-    """Options for `accelerometer_range`"""
+    """Options for ``accelerometer_range``"""
     pass #pylint: disable=unnecessary-pass
 
 AccelRange.add_values((
@@ -122,7 +122,7 @@ AccelRange.add_values((
 ))
 
 class GyroRange(CV):
-    """Options for `gyro_data_range`"""
+    """Options for ``gyro_data_range``"""
     pass #pylint: disable=unnecessary-pass
 
 GyroRange.add_values((
@@ -133,7 +133,7 @@ GyroRange.add_values((
 ))
 
 class Rate(CV):
-    """Options for `data_rate`"""
+    """Options for ``accelerometer_data_rate`` and ``gyro_data_rate``"""
     pass #pylint: disable=unnecessary-pass
 
 Rate.add_values((
@@ -239,7 +239,7 @@ class LSM6DSOX: #pylint: disable=too-many-instance-attributes
 
     @property
     def acceleration(self):
-        """Acceleration!"""
+        """The x, y, z acceleration values returned in a 3-tuple and are in m / s ^ 2."""
         raw_accel_data = self._raw_accel_data
         x = self._scale_xl_data(raw_accel_data[0])
         y = self._scale_xl_data(raw_accel_data[1])
@@ -249,7 +249,7 @@ class LSM6DSOX: #pylint: disable=too-many-instance-attributes
 
     @property
     def gyro(self):
-        """ME GRYO, ME FLY PLANE"""
+        """The x, y, z angular velocity values returned in a 3-tuple and are in degrees / second"""
         raw_gyro_data = self._raw_gyro_data
         x = self._scale_gyro_data(raw_gyro_data[0])
         y = self._scale_gyro_data(raw_gyro_data[1])

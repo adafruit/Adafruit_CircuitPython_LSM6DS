@@ -1,11 +1,9 @@
-import time
 import board
 import busio
 import adafruit_lsm6dsox
-from adafruit_debug_i2c import DebugI2C
+#pylint:disable=no-member
 
 i2c = busio.I2C(board.SCL, board.SDA)
-# i2c = DebugI2C(busio.I2C(board.SCL, board.SDA))
 
 sox = adafruit_lsm6dsox.LSM6DSOX(i2c)
 

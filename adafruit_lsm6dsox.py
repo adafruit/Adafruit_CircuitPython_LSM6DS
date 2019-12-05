@@ -309,12 +309,12 @@ class LSM6DSOX: #pylint: disable=too-many-instance-attributes
     @property
     def gyro_data_rate(self):
         """Select the rate at which the gyro takes measurements. Must be a `Rate`"""
-        return self._gyro_accel_data_rate
+        return self._gyro_data_rate
 
     @gyro_data_rate.setter
     def gyro_data_rate(self, value):
         if not Rate.is_valid(value):
             raise AttributeError("gyro_data_rate must be a `Rate`")
 
-        self._gyro_accel_data_rate = value
+        self._gyro_data_rate = value
         # sleep(.2) # needed to let new range settle

@@ -126,10 +126,12 @@ class GyroRange(CV):
     pass #pylint: disable=unnecessary-pass
 
 GyroRange.add_values((
+    ('RANGE_125_DPS', 125, 125, 4.375),
     ('RANGE_250_DPS', 0, 250, 8.75),
     ('RANGE_500_DPS', 1, 500, 17.50),
     ('RANGE_1000_DPS', 2, 1000, 35.0),
-    ('RANGE_2000_DPS', 3, 2000, 70.0)
+    ('RANGE_2000_DPS', 3, 2000, 70.0),
+    ('RANGE_4000_DPS', 4000, 4000, 140.0)
 ))
 
 class Rate(CV):
@@ -181,6 +183,7 @@ class LSM6DSOX: #pylint: disable=too-many-instance-attributes
 
     _gyro_data_rate = RWBits(4, _LSM6DSOX_CTRL2_G, 4)
     _gyro_range = RWBits(2, _LSM6DSOX_CTRL2_G, 2)
+    _gyro_range_125dps = RWBit(_LSM6DSOX_CTRL2_G, 1)
 
     _sw_reset = RWBit(_LSM6DSOX_CTRL3_C, 0)
     _if_inc = RWBit(_LSM6DSOX_CTRL3_C, 2)
@@ -238,6 +241,12 @@ class LSM6DSOX: #pylint: disable=too-many-instance-attributes
             sleep(0.001)
 
     @property
+    def is_lsm6dsox(self):
+        """Returns `True` if the connected sensor is an LSM6DSOX,
+        `False` if not, it's an ICM330DHCX"""
+        return self._chip_id is _LSM6DSOX_CHIP_ID
+
+    @property
     def acceleration(self):
         """The x, y, z acceleration values returned in a 3-tuple and are in m / s ^ 2."""
         raw_accel_data = self._raw_accel_data
@@ -269,8 +278,9 @@ class LSM6DSOX: #pylint: disable=too-many-instance-attributes
         Note that larger ranges will be less accurate. Must be an `AccelRange`"""
         return self._cached_accel_range
 
+    #pylint: disable=no-member
     @accelerometer_range.setter
-    def accelerometer_range(self, value): #pylint: disable=no-member
+    def accelerometer_range(self, value):
         if not AccelRange.is_valid(value):
             raise AttributeError("range must be an `AccelRange`")
         self._accel_range = value
@@ -279,17 +289,33 @@ class LSM6DSOX: #pylint: disable=too-many-instance-attributes
 
     @property
     def gyro_range(self):
-        """Adjusts the range of values that the sensor can measure, from 250 Degrees/second to 2000
-        degrees/s. Note that larger ranges will be less accurate. Must be a `GyroRange`"""
+        """Adjusts the range of values that the sensor can measure, from 125 Degrees/second to 4000
+        degrees/s. Note that larger ranges will be less accurate. Must be a `GyroRange`. 4000 DPS
+        is only available for the ISM330DHCX"""
         return self._cached_gyro_range
 
     @gyro_range.setter
     def gyro_range(self, value):
         if not GyroRange.is_valid(value):
             raise AttributeError("range must be a `GyroRange`")
-        self._gyro_range = value
+        if value is GyroRange.RANGE_4000_DPS and self.is_lsm6dsox:
+            raise AttributeError("4000 DPS is only available for ISM330DHCX")
+
+        if value is GyroRange.RANGE_125_DPS:
+            self._gyro_range_125dps = True
+            self._gyro_range_4000dps = False
+        elif value is GyroRange.RANGE_4000_DPS:
+            self._gyro_range_125dps = False
+            self._gyro_range_4000dps = True
+        else:
+            self._gyro_range_125dps = False
+            self._gyro_range_4000dps = True
+            self._gyro_range = value
+
         self._cached_gyro_range = value
         sleep(.2) # needed to let new range settle
+
+    #pylint: enable=no-member
 
     @property
     def accelerometer_data_rate(self):

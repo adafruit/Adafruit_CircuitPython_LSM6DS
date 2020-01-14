@@ -1,6 +1,6 @@
 import board
 import busio
-from adafruit_lsm6dsox import LSM6DSOX, Rate, AccelRange, GyroRange
+from adafruit_lsm6ds import LSM6DSOX, Rate, AccelRange, GyroRange
 #pylint:disable=no-member
 i2c = busio.I2C(board.SCL, board.SDA)
 sox = LSM6DSOX(i2c)

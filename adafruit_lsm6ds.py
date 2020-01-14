@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 """
-`adafruit_lsm6dsox`
+`adafruit_lsm6ds`
 ================================================================================
 
 CircuitPython library for the ST LSM6DSOX 6-axis Accelerometer and Gyro
@@ -58,35 +58,36 @@ __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_LSM6DSOX.git"
 
 
-_LSM6DSOX_DEFAULT_ADDRESS = const(0x6a)
-_LSM6DSOX_CHIP_ID = const(0x6C)
-_ISM330DHCX_CHIP_ID = const(0x6B)
+_LSM6DS_DEFAULT_ADDRESS = const(0x6a)
 
+_LSM6DS_CHIP_ID = const(0x6C)
+_ISM330DHCT_CHIP_ID = const(0x6B)
+_LSM6DS33_CHIP_ID = const(0x69)
 
-_LSM6DSOX_FUNC_CFG_ACCESS = const(0x1)
-_LSM6DSOX_PIN_CTRL = const(0x2)
-_LSM6DSOX_UI_INT_OIS = const(0x6F)
-_LSM6DSOX_WHOAMI = const(0xF)
-_LSM6DSOX_CTRL1_XL = const(0x10)
-_LSM6DSOX_CTRL2_G = const(0x11)
-_LSM6DSOX_CTRL3_C = const(0x12)
-_LSM6DSOX_CTRL_5_C = const(0x14)
-_LSM6DSOX_MASTER_CONFIG = const(0x14)
-_LSM6DSOX_CTRL9_XL = const(0x18)
-_LSM6DSOX_OUT_TEMP_L = const(0x20)
-_LSM6DSOX_OUT_TEMP_H = const(0x21)
-_LSM6DSOX_OUTX_L_G = const(0x22)
-_LSM6DSOX_OUTX_H_G = const(0x23)
-_LSM6DSOX_OUTY_L_G = const(0x24)
-_LSM6DSOX_OUTY_H_G = const(0x25)
-_LSM6DSOX_OUTZ_L_G = const(0x26)
-_LSM6DSOX_OUTZ_H_G = const(0x27)
-_LSM6DSOX_OUTX_L_A = const(0x28)
-_LSM6DSOX_OUTX_H_A = const(0x29)
-_LSM6DSOX_OUTY_L_A = const(0x2A)
-_LSM6DSOX_OUTY_H_A = const(0x2B)
-_LSM6DSOX_OUTZ_L_A = const(0x2C)
-_LSM6DSOX_OUTZ_H_A = const(0x2D)
+_LSM6DS_FUNC_CFG_ACCESS = const(0x1)
+_LSM6DS_PIN_CTRL = const(0x2)
+_LSM6DS_UI_INT_OIS = const(0x6F)
+_LSM6DS_WHOAMI = const(0xF)
+_LSM6DS_CTRL1_XL = const(0x10)
+_LSM6DS_CTRL2_G = const(0x11)
+_LSM6DS_CTRL3_C = const(0x12)
+_LSM6DS_CTRL_5_C = const(0x14)
+_LSM6DS_MASTER_CONFIG = const(0x14)
+_LSM6DS_CTRL9_XL = const(0x18)
+_LSM6DS_OUT_TEMP_L = const(0x20)
+_LSM6DS_OUT_TEMP_H = const(0x21)
+_LSM6DS_OUTX_L_G = const(0x22)
+_LSM6DS_OUTX_H_G = const(0x23)
+_LSM6DS_OUTY_L_G = const(0x24)
+_LSM6DS_OUTY_H_G = const(0x25)
+_LSM6DS_OUTZ_L_G = const(0x26)
+_LSM6DS_OUTZ_H_G = const(0x27)
+_LSM6DS_OUTX_L_A = const(0x28)
+_LSM6DS_OUTX_H_A = const(0x29)
+_LSM6DS_OUTY_L_A = const(0x2A)
+_LSM6DS_OUTY_H_A = const(0x2B)
+_LSM6DS_OUTZ_L_A = const(0x2C)
+_LSM6DS_OUTZ_H_A = const(0x2D)
 
 _MILLI_G_TO_ACCEL = 0.00980665
 
@@ -153,7 +154,8 @@ Rate.add_values((
     ('RATE_1_6_HZ', 11, 1.6, None)
 ))
 
-class LSM6DSOX: #pylint: disable=too-many-instance-attributes
+
+class LSM6DS: #pylint: disable=too-many-instance-attributes
 
     """Driver for the LSM6DSOX 6-axis accelerometer and gyroscope.
 
@@ -163,59 +165,61 @@ class LSM6DSOX: #pylint: disable=too-many-instance-attributes
     """
 
 #ROUnaryStructs:
-    _chip_id = ROUnaryStruct(_LSM6DSOX_WHOAMI, "<b")
-    _temperature = ROUnaryStruct(_LSM6DSOX_OUT_TEMP_L, "<h")
+    _chip_id = ROUnaryStruct(_LSM6DS_WHOAMI, "<b")
+    _temperature = ROUnaryStruct(_LSM6DS_OUT_TEMP_L, "<h")
 
 #RWBits:
-    _ois_ctrl_from_ui = RWBit(_LSM6DSOX_FUNC_CFG_ACCESS, 0)
-    _shub_reg_access = RWBit(_LSM6DSOX_FUNC_CFG_ACCESS, 6)
-    _func_cfg_access = RWBit(_LSM6DSOX_FUNC_CFG_ACCESS, 7)
-    _sdo_pu_en = RWBit(_LSM6DSOX_PIN_CTRL, 6)
-    _ois_pu_dis = RWBit(_LSM6DSOX_PIN_CTRL, 7)
-    _spi2_read_en = RWBit(_LSM6DSOX_UI_INT_OIS, 3)
-    _den_lh_ois = RWBit(_LSM6DSOX_UI_INT_OIS, 5)
-    _lvl2_ois = RWBit(_LSM6DSOX_UI_INT_OIS, 6)
-    _int2_drdy_ois = RWBit(_LSM6DSOX_UI_INT_OIS, 7)
-    _lpf_xl = RWBit(_LSM6DSOX_CTRL1_XL, 1)
+    _ois_ctrl_from_ui = RWBit(_LSM6DS_FUNC_CFG_ACCESS, 0)
+    _shub_reg_access = RWBit(_LSM6DS_FUNC_CFG_ACCESS, 6)
+    _func_cfg_access = RWBit(_LSM6DS_FUNC_CFG_ACCESS, 7)
+    _sdo_pu_en = RWBit(_LSM6DS_PIN_CTRL, 6)
+    _ois_pu_dis = RWBit(_LSM6DS_PIN_CTRL, 7)
+    _spi2_read_en = RWBit(_LSM6DS_UI_INT_OIS, 3)
+    _den_lh_ois = RWBit(_LSM6DS_UI_INT_OIS, 5)
+    _lvl2_ois = RWBit(_LSM6DS_UI_INT_OIS, 6)
+    _int2_drdy_ois = RWBit(_LSM6DS_UI_INT_OIS, 7)
+    _lpf_xl = RWBit(_LSM6DS_CTRL1_XL, 1)
 
-    _accel_range = RWBits(2, _LSM6DSOX_CTRL1_XL, 2)
-    _accel_data_rate = RWBits(4, _LSM6DSOX_CTRL1_XL, 4)
+    _accel_range = RWBits(2, _LSM6DS_CTRL1_XL, 2)
+    _accel_data_rate = RWBits(4, _LSM6DS_CTRL1_XL, 4)
 
-    _gyro_data_rate = RWBits(4, _LSM6DSOX_CTRL2_G, 4)
-    _gyro_range = RWBits(2, _LSM6DSOX_CTRL2_G, 2)
-    _gyro_range_125dps = RWBit(_LSM6DSOX_CTRL2_G, 1)
+    _gyro_data_rate = RWBits(4, _LSM6DS_CTRL2_G, 4)
+    _gyro_range = RWBits(2, _LSM6DS_CTRL2_G, 2)
+    _gyro_range_125dps = RWBit(_LSM6DS_CTRL2_G, 1)
+    _gyro_range_4000dps = RWBit(_LSM6DS_CTRL2_G, 0)
 
-    _sw_reset = RWBit(_LSM6DSOX_CTRL3_C, 0)
-    _if_inc = RWBit(_LSM6DSOX_CTRL3_C, 2)
-    _sim = RWBit(_LSM6DSOX_CTRL3_C, 3)
-    _pp_od = RWBit(_LSM6DSOX_CTRL3_C, 4)
-    _h_lactive = RWBit(_LSM6DSOX_CTRL3_C, 5)
-    _bdu = RWBit(_LSM6DSOX_CTRL3_C, 6)
-    _boot = RWBit(_LSM6DSOX_CTRL3_C, 7)
-    _st_xl = RWBits(2, _LSM6DSOX_CTRL_5_C, 0)
-    _st_g = RWBits(2, _LSM6DSOX_CTRL_5_C, 2)
-    _rounding_status = RWBit(_LSM6DSOX_CTRL_5_C, 4)
-    _rounding = RWBits(2, _LSM6DSOX_CTRL_5_C, 5)
-    _xl_ulp_en = RWBit(_LSM6DSOX_CTRL_5_C, 7)
-    _aux_sens_on = RWBits(2, _LSM6DSOX_MASTER_CONFIG, 0)
-    _master_on = RWBit(_LSM6DSOX_MASTER_CONFIG, 2)
-    _shub_pu_en = RWBit(_LSM6DSOX_MASTER_CONFIG, 3)
-    _pass_through_mode = RWBit(_LSM6DSOX_MASTER_CONFIG, 4)
-    _start_config = RWBit(_LSM6DSOX_MASTER_CONFIG, 5)
-    _write_once = RWBit(_LSM6DSOX_MASTER_CONFIG, 6)
-    _rst_master_regs = RWBit(_LSM6DSOX_MASTER_CONFIG, 7)
-    _i3c_disable = RWBit(_LSM6DSOX_CTRL9_XL, 1)
+    _sw_reset = RWBit(_LSM6DS_CTRL3_C, 0)
+    _if_inc = RWBit(_LSM6DS_CTRL3_C, 2)
+    _sim = RWBit(_LSM6DS_CTRL3_C, 3)
+    _pp_od = RWBit(_LSM6DS_CTRL3_C, 4)
+    _h_lactive = RWBit(_LSM6DS_CTRL3_C, 5)
+    _bdu = RWBit(_LSM6DS_CTRL3_C, 6)
+    _boot = RWBit(_LSM6DS_CTRL3_C, 7)
+    _st_xl = RWBits(2, _LSM6DS_CTRL_5_C, 0)
+    _st_g = RWBits(2, _LSM6DS_CTRL_5_C, 2)
+    _rounding_status = RWBit(_LSM6DS_CTRL_5_C, 4)
+    _rounding = RWBits(2, _LSM6DS_CTRL_5_C, 5)
+    _xl_ulp_en = RWBit(_LSM6DS_CTRL_5_C, 7)
+    _aux_sens_on = RWBits(2, _LSM6DS_MASTER_CONFIG, 0)
+    _master_on = RWBit(_LSM6DS_MASTER_CONFIG, 2)
+    _shub_pu_en = RWBit(_LSM6DS_MASTER_CONFIG, 3)
+    _pass_through_mode = RWBit(_LSM6DS_MASTER_CONFIG, 4)
+    _start_config = RWBit(_LSM6DS_MASTER_CONFIG, 5)
+    _write_once = RWBit(_LSM6DS_MASTER_CONFIG, 6)
+    _rst_master_regs = RWBit(_LSM6DS_MASTER_CONFIG, 7)
+    _i3c_disable = RWBit(_LSM6DS_CTRL9_XL, 1)
 
-    _raw_temp = ROUnaryStruct(_LSM6DSOX_OUT_TEMP_L, "<h")
+    _raw_temp = ROUnaryStruct(_LSM6DS_OUT_TEMP_L, "<h")
 
-    _raw_accel_data = Struct(_LSM6DSOX_OUTX_L_A, "<hhh")
-    _raw_gyro_data = Struct(_LSM6DSOX_OUTX_L_G, "<hhh")
-
-    def __init__(self, i2c_bus, address=_LSM6DSOX_DEFAULT_ADDRESS):
+    _raw_accel_data = Struct(_LSM6DS_OUTX_L_A, "<hhh")
+    _raw_gyro_data = Struct(_LSM6DS_OUTX_L_G, "<hhh")
+    CHIP_ID = None
+    def __init__(self, i2c_bus, address=_LSM6DS_DEFAULT_ADDRESS):
         self.i2c_device = i2c_device.I2CDevice(i2c_bus, address)
-
-        if self._chip_id not in [_LSM6DSOX_CHIP_ID, _ISM330DHCX_CHIP_ID]:
-            raise RuntimeError("Failed to find LSM6DSOX or ISM330DHCX - check your wiring!")
+        if self.CHIP_ID is None:
+            raise AttributeError("LSM6DS Parent Class cannot be directly instantiated")
+        if self._chip_id != self.CHIP_ID:
+            raise RuntimeError("Failed to find %s - check your wiring!"%self.__class__.__name__)
         self.reset()
 
         self._bdu = True
@@ -243,8 +247,8 @@ class LSM6DSOX: #pylint: disable=too-many-instance-attributes
     @property
     def is_lsm6dsox(self):
         """Returns `True` if the connected sensor is an LSM6DSOX,
-        `False` if not, it's an ICM330DHCX"""
-        return self._chip_id is _LSM6DSOX_CHIP_ID
+        `False` if not, it's an ICM330DHCT"""
+        return self._chip_id is _LSM6DS_CHIP_ID
 
     @property
     def acceleration(self):
@@ -291,15 +295,15 @@ class LSM6DSOX: #pylint: disable=too-many-instance-attributes
     def gyro_range(self):
         """Adjusts the range of values that the sensor can measure, from 125 Degrees/second to 4000
         degrees/s. Note that larger ranges will be less accurate. Must be a `GyroRange`. 4000 DPS
-        is only available for the ISM330DHCX"""
+        is only available for the ISM330DHCT"""
         return self._cached_gyro_range
 
     @gyro_range.setter
     def gyro_range(self, value):
         if not GyroRange.is_valid(value):
             raise AttributeError("range must be a `GyroRange`")
-        if value is GyroRange.RANGE_4000_DPS and self.is_lsm6dsox:
-            raise AttributeError("4000 DPS is only available for ISM330DHCX")
+        if value is GyroRange.RANGE_4000_DPS and not isinstance(self, ISM330DHCT):
+            raise AttributeError("4000 DPS is only available for ISM330DHCT")
 
         if value is GyroRange.RANGE_125_DPS:
             self._gyro_range_125dps = True
@@ -344,3 +348,33 @@ class LSM6DSOX: #pylint: disable=too-many-instance-attributes
 
         self._gyro_data_rate = value
         # sleep(.2) # needed to let new range settle
+
+class LSM6DSOX(LSM6DS): #pylint: disable=too-many-instance-attributes
+
+    """Driver for the LSM6DSOX 6-axis accelerometer and gyroscope.
+
+        :param ~busio.I2C i2c_bus: The I2C bus the LSM6DSOX is connected to.
+        :param address: The I2C slave address of the sensor
+
+    """
+    CHIP_ID = _LSM6DS_CHIP_ID
+
+class LSM6DS33(LSM6DS): #pylint: disable=too-many-instance-attributes
+
+    """Driver for the LSM6DS33 6-axis accelerometer and gyroscope.
+
+        :param ~busio.I2C i2c_bus: The I2C bus the LSM6DS33 is connected to.
+        :param address: The I2C slave address of the sensor
+
+    """
+    CHIP_ID = _LSM6DS33_CHIP_ID
+
+class ISM330DHCT(LSM6DS): #pylint: disable=too-many-instance-attributes
+
+    """Driver for the LSM6DS33 6-axis accelerometer and gyroscope.
+
+        :param ~busio.I2C i2c_bus: The I2C bus the LSM6DS33 is connected to.
+        :param address: The I2C slave address of the sensor
+
+    """
+    CHIP_ID = _ISM330DHCT_CHIP_ID

@@ -189,7 +189,6 @@ class LSM6DS: #pylint: disable=too-many-instance-attributes
     _gyro_range_4000dps = RWBit(_LSM6DS_CTRL2_G, 0)
 
     _sw_reset = RWBit(_LSM6DS_CTRL3_C, 0)
-    _if_inc = RWBit(_LSM6DS_CTRL3_C, 2)
     _sim = RWBit(_LSM6DS_CTRL3_C, 3)
     _pp_od = RWBit(_LSM6DS_CTRL3_C, 4)
     _h_lactive = RWBit(_LSM6DS_CTRL3_C, 5)
@@ -223,17 +222,15 @@ class LSM6DS: #pylint: disable=too-many-instance-attributes
         self.reset()
 
         self._bdu = True
-        self._i3c_disable = True
-        self._if_inc = True
 
-        self._accel_data_rate = Rate.RATE_104_HZ #pylint: disable=no-member
-        self._gyro_data_rate = Rate.RATE_104_HZ #pylint: disable=no-member
+        self.accel_data_rate = Rate.RATE_104_HZ #pylint: disable=no-member
+        self.gyro_data_rate = Rate.RATE_104_HZ #pylint: disable=no-member
 
-        self._accel_range = AccelRange.RANGE_4G #pylint: disable=no-member
+        self.accel_range = AccelRange.RANGE_4G #pylint: disable=no-member
+        self.gyro_range = GyroRange.RANGE_250_DPS #pylint: disable=no-member
+
         self._cached_accel_range = self._accel_range
-        self._gyro_range = GyroRange.RANGE_250_DPS #pylint: disable=no-member
         self._cached_gyro_range = self._gyro_range
-
 
     def reset(self):
         "Resets the sensor's configuration into an initial state"
@@ -243,12 +240,6 @@ class LSM6DS: #pylint: disable=too-many-instance-attributes
         self._boot = True
         while self._boot:
             sleep(0.001)
-
-    @property
-    def is_lsm6dsox(self):
-        """Returns `True` if the connected sensor is an LSM6DSOX,
-        `False` if not, it's an ICM330DHCT"""
-        return self._chip_id is _LSM6DS_CHIP_ID
 
     @property
     def acceleration(self):
@@ -358,6 +349,9 @@ class LSM6DSOX(LSM6DS): #pylint: disable=too-many-instance-attributes
 
     """
     CHIP_ID = _LSM6DS_CHIP_ID
+    def __init__(self, i2c_bus, address=_LSM6DS_DEFAULT_ADDRESS):
+        super().__init__(i2c_bus, address)
+        self._i3c_disable = True
 
 class LSM6DS33(LSM6DS): #pylint: disable=too-many-instance-attributes
 
@@ -378,3 +372,8 @@ class ISM330DHCT(LSM6DS): #pylint: disable=too-many-instance-attributes
 
     """
     CHIP_ID = _ISM330DHCT_CHIP_ID
+    def __init__(self, i2c_bus, address=_LSM6DS_DEFAULT_ADDRESS):
+        super().__init__(i2c_bus, address)
+
+        # Called DEVICE_CONF in the datasheet, but it recommends setting it
+        self._i3c_disable = True

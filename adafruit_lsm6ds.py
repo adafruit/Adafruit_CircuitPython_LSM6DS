@@ -223,10 +223,10 @@ class LSM6DS: #pylint: disable=too-many-instance-attributes
 
         self._bdu = True
 
-        self.accel_data_rate = Rate.RATE_104_HZ #pylint: disable=no-member
+        self.accelerometer_data_rate = Rate.RATE_104_HZ #pylint: disable=no-member
         self.gyro_data_rate = Rate.RATE_104_HZ #pylint: disable=no-member
 
-        self.accel_range = AccelRange.RANGE_4G #pylint: disable=no-member
+        self.accelerometer_range = AccelRange.RANGE_4G #pylint: disable=no-member
         self.gyro_range = GyroRange.RANGE_250_DPS #pylint: disable=no-member
 
         self._cached_accel_range = self._accel_range
@@ -304,7 +304,7 @@ class LSM6DS: #pylint: disable=too-many-instance-attributes
             self._gyro_range_4000dps = True
         else:
             self._gyro_range_125dps = False
-            self._gyro_range_4000dps = True
+            self._gyro_range_4000dps = False
             self._gyro_range = value
 
         self._cached_gyro_range = value

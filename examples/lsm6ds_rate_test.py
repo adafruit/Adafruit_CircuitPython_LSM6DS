@@ -13,17 +13,17 @@ while True:
     sensor.accelerometer_data_rate = Rate.RATE_12_5_HZ
     sensor.gyro_data_rate = Rate.RATE_12_5_HZ
     for i in range(100):
-        print("(%.2f, %.2f, %.2f, %.2f, %.2f, %.2f"%(sensor.acceleration+sensor.gyro))
+        print("(%.2f, %.2f, %.2f, %.2f, %.2f, %.2f" % (sensor.acceleration+sensor.gyro))
     print()
 
     sensor.accelerometer_data_rate = Rate.RATE_52_HZ
     sensor.gyro_data_rate = Rate.RATE_52_HZ
     for i in range(100):
-        print("(%.2f, %.2f, %.2f, %.2f, %.2f, %.2f"%(sensor.acceleration+sensor.gyro))
+        print("(%.2f, %.2f, %.2f, %.2f, %.2f, %.2f" % (sensor.acceleration+sensor.gyro))
     print()
 
     sensor.accelerometer_data_rate = Rate.RATE_416_HZ
     sensor.gyro_data_rate = Rate.RATE_416_HZ
     for i in range(100):
-        print("(%.2f, %.2f, %.2f, %.2f, %.2f, %.2f"%(sensor.acceleration+sensor.gyro))
+        print("(%.2f, %.2f, %.2f, %.2f, %.2f, %.2f" % (sensor.acceleration+sensor.gyro))
     print()

@@ -14,7 +14,7 @@ Introduction
     :target: https://github.com/adafruit/Adafruit_CircuitPython_LSM6DS/actions
     :alt: Build Status
 
-CircuitPython library for the ST LSM6DSOX 6-axis Accelerometer and Gyro
+CircuitPython library for the ST LSM6DSOX, LSM6DS33, and ISM330DHCT 6-dof Accelerometer and Gyros
 
 
 Dependencies

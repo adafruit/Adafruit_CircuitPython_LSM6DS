@@ -214,6 +214,9 @@ class LSM6DS: #pylint: disable=too-many-instance-attributes
     _raw_gyro_data = Struct(_LSM6DS_OUTX_L_G, "<hhh")
     CHIP_ID = None
     def __init__(self, i2c_bus, address=_LSM6DS_DEFAULT_ADDRESS):
+        self._cached_accel_range = None
+        self._cached_gyro_range = None
+
         self.i2c_device = i2c_device.I2CDevice(i2c_bus, address)
         if self.CHIP_ID is None:
             raise AttributeError("LSM6DS Parent Class cannot be directly instantiated")
@@ -228,9 +231,6 @@ class LSM6DS: #pylint: disable=too-many-instance-attributes
 
         self.accelerometer_range = AccelRange.RANGE_4G #pylint: disable=no-member
         self.gyro_range = GyroRange.RANGE_250_DPS #pylint: disable=no-member
-
-        self._cached_accel_range = self._accel_range
-        self._cached_gyro_range = self._gyro_range
 
     def reset(self):
         "Resets the sensor's configuration into an initial state"

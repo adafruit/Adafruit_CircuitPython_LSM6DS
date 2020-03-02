@@ -5,6 +5,7 @@ the chip so you don't have to do any calculations!"""
 import time
 import board
 import busio
+#pylint:disable=no-member
 from adafruit_lsm6ds import LSM6DS33, Rate, AccelRange
 
 i2c = busio.I2C(board.SCL, board.SDA)

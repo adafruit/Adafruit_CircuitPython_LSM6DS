@@ -74,6 +74,7 @@ _LSM6DS_CTRL3_C = const(0x12)
 _LSM6DS_CTRL_5_C = const(0x14)
 _LSM6DS_MASTER_CONFIG = const(0x14)
 _LSM6DS_CTRL9_XL = const(0x18)
+_LSM6DS_CTRL10_C = const(0x19)
 _LSM6DS_OUT_TEMP_L = const(0x20)
 _LSM6DS_OUT_TEMP_H = const(0x21)
 _LSM6DS_OUTX_L_G = const(0x22)
@@ -88,6 +89,8 @@ _LSM6DS_OUTY_L_A = const(0x2A)
 _LSM6DS_OUTY_H_A = const(0x2B)
 _LSM6DS_OUTZ_L_A = const(0x2C)
 _LSM6DS_OUTZ_H_A = const(0x2D)
+_LSM6DS_STEP_COUNTER = const(0x4B)
+_LSM6DS_TAP_CFG = const(0x58)
 
 _MILLI_G_TO_ACCEL = 0.00980665
 
@@ -209,10 +212,16 @@ class LSM6DS: #pylint: disable=too-many-instance-attributes
     _i3c_disable = RWBit(_LSM6DS_CTRL9_XL, 1)
 
     _raw_temp = ROUnaryStruct(_LSM6DS_OUT_TEMP_L, "<h")
-
     _raw_accel_data = Struct(_LSM6DS_OUTX_L_A, "<hhh")
     _raw_gyro_data = Struct(_LSM6DS_OUTX_L_G, "<hhh")
+
+    pedometer_steps = ROUnaryStruct(_LSM6DS_STEP_COUNTER, "<h")
+    pedometer_reset = RWBit(_LSM6DS_CTRL10_C, 1)
+    _ped_enable = RWBit(_LSM6DS_TAP_CFG, 6)
+    _func_enable = RWBit(_LSM6DS_CTRL10_C, 2)
+
     CHIP_ID = None
+
     def __init__(self, i2c_bus, address=_LSM6DS_DEFAULT_ADDRESS):
         self._cached_accel_range = None
         self._cached_gyro_range = None
@@ -339,6 +348,11 @@ class LSM6DS: #pylint: disable=too-many-instance-attributes
 
         self._gyro_data_rate = value
         # sleep(.2) # needed to let new range settle
+
+    def pedometer_enable(self, enable):
+        self._ped_enable = enable
+        self._func_enable = enable
+        self.pedometer_reset = enable
 
 class LSM6DSOX(LSM6DS): #pylint: disable=too-many-instance-attributes
 

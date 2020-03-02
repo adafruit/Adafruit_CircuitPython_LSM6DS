@@ -1,0 +1,25 @@
+""" This example shows off how to use the step counter built
+into the ST LSM6DS series IMUs. The steps are calculated in
+the chip so you don't have to do any calculations!"""
+
+import time
+import board
+import busio
+from adafruit_lsm6ds import LSM6DS33, Rate, AccelRange
+
+i2c = busio.I2C(board.SCL, board.SDA)
+
+sensor = LSM6DS33(i2c)
+
+# enable accelerometer sensor @ 2G and 26 Hz
+sensor.accelerometer_range = AccelRange.RANGE_2G
+sensor.accelerometer_data_rate = Rate.RATE_26_HZ
+# no gyro used for step detection
+sensor.gyro_data_rate = Rate.RATE_SHUTDOWN
+
+#enable the pedometer
+sensor.pedometer_enable(True)
+
+while True:
+    print("Steps: ", sensor.pedometer_steps)
+    time.sleep(1)

@@ -350,6 +350,7 @@ class LSM6DS: #pylint: disable=too-many-instance-attributes
         # sleep(.2) # needed to let new range settle
 
     def pedometer_enable(self, enable):
+        """ Enable/disable the pedometer function on the accelerometer """
         self._ped_enable = enable
         self._func_enable = enable
         self.pedometer_reset = enable

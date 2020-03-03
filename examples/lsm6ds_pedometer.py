@@ -19,7 +19,7 @@ sensor.accelerometer_data_rate = Rate.RATE_26_HZ
 sensor.gyro_data_rate = Rate.RATE_SHUTDOWN
 
 #enable the pedometer
-sensor.pedometer_enable(True)
+sensor.pedometer_enable = True
 
 while True:
     print("Steps: ", sensor.pedometer_steps)

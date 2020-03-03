@@ -349,8 +349,13 @@ class LSM6DS: #pylint: disable=too-many-instance-attributes
         self._gyro_data_rate = value
         # sleep(.2) # needed to let new range settle
 
+    @property
+    def pedometer_enable(self):
+        """ Whether the pedometer function on the accelerometer is enabled"""
+        return self._ped_enable and self._func_enable
+
+    @pedometer_enable.setter
     def pedometer_enable(self, enable):
-        """ Enable/disable the pedometer function on the accelerometer """
         self._ped_enable = enable
         self._func_enable = enable
         self.pedometer_reset = enable

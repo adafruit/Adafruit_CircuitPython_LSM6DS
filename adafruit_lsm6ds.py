@@ -73,6 +73,7 @@ _LSM6DS_CTRL2_G = const(0x11)
 _LSM6DS_CTRL3_C = const(0x12)
 _LSM6DS_CTRL_5_C = const(0x14)
 _LSM6DS_MASTER_CONFIG = const(0x14)
+_LSM6DS_CTRL8_XL = const(0x17)
 _LSM6DS_CTRL9_XL = const(0x18)
 _LSM6DS_CTRL10_C = const(0x19)
 _LSM6DS_OUT_TEMP_L = const(0x20)
@@ -157,6 +158,17 @@ Rate.add_values((
     ('RATE_1_6_HZ', 11, 1.6, None)
 ))
 
+class AccelHPF(CV):
+    """Options for the accelerometer high pass filter"""
+    pass #pylint: disable=unnecessary-pass
+
+AccelHPF.add_values((
+    ('SLOPE', 0, 0, None),
+    ('HPF_DIV100', 1, 0, None),
+    ('HPF_DIV9', 2, 0, None),
+    ('HPF_DIV400', 3, 0, None),
+))
+
 
 class LSM6DS: #pylint: disable=too-many-instance-attributes
 
@@ -219,6 +231,9 @@ class LSM6DS: #pylint: disable=too-many-instance-attributes
     pedometer_reset = RWBit(_LSM6DS_CTRL10_C, 1)
     _ped_enable = RWBit(_LSM6DS_TAP_CFG, 6)
     _func_enable = RWBit(_LSM6DS_CTRL10_C, 2)
+
+    high_pass_filter_enabled = RWBit(_LSM6DS_CTRL8_XL, 2)
+    _pass_filter = RWBits(2, _LSM6DS_CTRL8_XL, 5)
 
     CHIP_ID = None
 
@@ -359,6 +374,18 @@ class LSM6DS: #pylint: disable=too-many-instance-attributes
         self._ped_enable = enable
         self._func_enable = enable
         self.pedometer_reset = enable
+
+    @property
+    def high_pass_filter(self):
+        """The high pass filter applied to accelerometer data"""
+        return self._pass_filter
+
+    @high_pass_filter.setter
+    def high_pass_filter(self, value):
+        if not AccelHPF.is_valid(value):
+            raise AttributeError("range must be an `AccelHPF`")
+        self._pass_filter = value
+
 
 class LSM6DSOX(LSM6DS): #pylint: disable=too-many-instance-attributes
 

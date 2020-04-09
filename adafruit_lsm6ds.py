@@ -54,11 +54,12 @@ import adafruit_bus_device.i2c_device as i2c_device
 from adafruit_register.i2c_struct import ROUnaryStruct, Struct
 from adafruit_register.i2c_bits import RWBits
 from adafruit_register.i2c_bit import RWBit
+
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_LSM6DSOX.git"
 
 
-_LSM6DS_DEFAULT_ADDRESS = const(0x6a)
+_LSM6DS_DEFAULT_ADDRESS = const(0x6A)
 
 _LSM6DS_CHIP_ID = const(0x6C)
 _ISM330DHCT_CHIP_ID = const(0x6B)
@@ -95,6 +96,7 @@ _LSM6DS_TAP_CFG = const(0x58)
 
 _MILLI_G_TO_ACCEL = 0.00980665
 
+
 class CV:
     """struct helper"""
 
@@ -115,62 +117,82 @@ class CV:
         "Returns true if the given value is a member of the CV"
         return value in cls.string
 
+
 class AccelRange(CV):
     """Options for ``accelerometer_range``"""
-    pass #pylint: disable=unnecessary-pass
 
-AccelRange.add_values((
-    ('RANGE_2G', 0, 2, 0.061),
-    ('RANGE_16G', 1, 16, 0.488),
-    ('RANGE_4G', 2, 4, 0.122),
-    ('RANGE_8G', 3, 8, 0.244)
-))
+    pass  # pylint: disable=unnecessary-pass
+
+
+AccelRange.add_values(
+    (
+        ("RANGE_2G", 0, 2, 0.061),
+        ("RANGE_16G", 1, 16, 0.488),
+        ("RANGE_4G", 2, 4, 0.122),
+        ("RANGE_8G", 3, 8, 0.244),
+    )
+)
+
 
 class GyroRange(CV):
     """Options for ``gyro_data_range``"""
-    pass #pylint: disable=unnecessary-pass
 
-GyroRange.add_values((
-    ('RANGE_125_DPS', 125, 125, 4.375),
-    ('RANGE_250_DPS', 0, 250, 8.75),
-    ('RANGE_500_DPS', 1, 500, 17.50),
-    ('RANGE_1000_DPS', 2, 1000, 35.0),
-    ('RANGE_2000_DPS', 3, 2000, 70.0),
-    ('RANGE_4000_DPS', 4000, 4000, 140.0)
-))
+    pass  # pylint: disable=unnecessary-pass
+
+
+GyroRange.add_values(
+    (
+        ("RANGE_125_DPS", 125, 125, 4.375),
+        ("RANGE_250_DPS", 0, 250, 8.75),
+        ("RANGE_500_DPS", 1, 500, 17.50),
+        ("RANGE_1000_DPS", 2, 1000, 35.0),
+        ("RANGE_2000_DPS", 3, 2000, 70.0),
+        ("RANGE_4000_DPS", 4000, 4000, 140.0),
+    )
+)
+
 
 class Rate(CV):
     """Options for ``accelerometer_data_rate`` and ``gyro_data_rate``"""
-    pass #pylint: disable=unnecessary-pass
 
-Rate.add_values((
-    ('RATE_SHUTDOWN', 0, 0, None),
-    ('RATE_12_5_HZ', 1, 12.5, None),
-    ('RATE_26_HZ', 2, 26.0, None),
-    ('RATE_52_HZ', 3, 52.0, None),
-    ('RATE_104_HZ', 4, 104.0, None),
-    ('RATE_208_HZ', 5, 208.0, None),
-    ('RATE_416_HZ', 6, 416.0, None),
-    ('RATE_833_HZ', 7, 833.0, None),
-    ('RATE_1_66K_HZ', 8, 1066.0, None),
-    ('RATE_3_33K_HZ', 9, 3033.0, None),
-    ('RATE_6_66K_HZ', 10, 6066.0, None),
-    ('RATE_1_6_HZ', 11, 1.6, None)
-))
+    pass  # pylint: disable=unnecessary-pass
+
+
+Rate.add_values(
+    (
+        ("RATE_SHUTDOWN", 0, 0, None),
+        ("RATE_12_5_HZ", 1, 12.5, None),
+        ("RATE_26_HZ", 2, 26.0, None),
+        ("RATE_52_HZ", 3, 52.0, None),
+        ("RATE_104_HZ", 4, 104.0, None),
+        ("RATE_208_HZ", 5, 208.0, None),
+        ("RATE_416_HZ", 6, 416.0, None),
+        ("RATE_833_HZ", 7, 833.0, None),
+        ("RATE_1_66K_HZ", 8, 1066.0, None),
+        ("RATE_3_33K_HZ", 9, 3033.0, None),
+        ("RATE_6_66K_HZ", 10, 6066.0, None),
+        ("RATE_1_6_HZ", 11, 1.6, None),
+    )
+)
+
 
 class AccelHPF(CV):
     """Options for the accelerometer high pass filter"""
-    pass #pylint: disable=unnecessary-pass
 
-AccelHPF.add_values((
-    ('SLOPE', 0, 0, None),
-    ('HPF_DIV100', 1, 0, None),
-    ('HPF_DIV9', 2, 0, None),
-    ('HPF_DIV400', 3, 0, None),
-))
+    pass  # pylint: disable=unnecessary-pass
 
 
-class LSM6DS: #pylint: disable=too-many-instance-attributes
+AccelHPF.add_values(
+    (
+        ("SLOPE", 0, 0, None),
+        ("HPF_DIV100", 1, 0, None),
+        ("HPF_DIV9", 2, 0, None),
+        ("HPF_DIV400", 3, 0, None),
+    )
+)
+
+
+class LSM6DS:  # pylint: disable=too-many-instance-attributes
 
     """Driver for the LSM6DSOX 6-axis accelerometer and gyroscope.
 
@@ -179,11 +201,11 @@ class LSM6DS: #pylint: disable=too-many-instance-attributes
 
     """
 
-#ROUnaryStructs:
+    # ROUnaryStructs:
     _chip_id = ROUnaryStruct(_LSM6DS_WHOAMI, "<b")
     _temperature = ROUnaryStruct(_LSM6DS_OUT_TEMP_L, "<h")
 
-#RWBits:
+    # RWBits:
     _ois_ctrl_from_ui = RWBit(_LSM6DS_FUNC_CFG_ACCESS, 0)
     _shub_reg_access = RWBit(_LSM6DS_FUNC_CFG_ACCESS, 6)
     _func_cfg_access = RWBit(_LSM6DS_FUNC_CFG_ACCESS, 7)
@@ -245,16 +267,18 @@ class LSM6DS: #pylint: disable=too-many-instance-attributes
         if self.CHIP_ID is None:
             raise AttributeError("LSM6DS Parent Class cannot be directly instantiated")
         if self._chip_id != self.CHIP_ID:
-            raise RuntimeError("Failed to find %s - check your wiring!"%self.__class__.__name__)
+            raise RuntimeError(
+                "Failed to find %s - check your wiring!" % self.__class__.__name__
+            )
         self.reset()
 
         self._bdu = True
 
-        self.accelerometer_data_rate = Rate.RATE_104_HZ #pylint: disable=no-member
-        self.gyro_data_rate = Rate.RATE_104_HZ #pylint: disable=no-member
+        self.accelerometer_data_rate = Rate.RATE_104_HZ  # pylint: disable=no-member
+        self.gyro_data_rate = Rate.RATE_104_HZ  # pylint: disable=no-member
 
-        self.accelerometer_range = AccelRange.RANGE_4G #pylint: disable=no-member
-        self.gyro_range = GyroRange.RANGE_250_DPS #pylint: disable=no-member
+        self.accelerometer_range = AccelRange.RANGE_4G  # pylint: disable=no-member
+        self.gyro_range = GyroRange.RANGE_250_DPS  # pylint: disable=no-member
 
     def reset(self):
         "Resets the sensor's configuration into an initial state"
@@ -273,7 +297,7 @@ class LSM6DS: #pylint: disable=too-many-instance-attributes
         y = self._scale_xl_data(raw_accel_data[1])
         z = self._scale_xl_data(raw_accel_data[2])
 
-        return(x, y, z)
+        return (x, y, z)
 
     @property
     def gyro(self):
@@ -286,7 +310,11 @@ class LSM6DS: #pylint: disable=too-many-instance-attributes
         return (x, y, z)
 
     def _scale_xl_data(self, raw_measurement):
-        return raw_measurement * AccelRange.lsb[self._cached_accel_range] * _MILLI_G_TO_ACCEL
+        return (
+            raw_measurement
+            * AccelRange.lsb[self._cached_accel_range]
+            * _MILLI_G_TO_ACCEL
+        )
 
     def _scale_gyro_data(self, raw_measurement):
         return raw_measurement * GyroRange.lsb[self._cached_gyro_range] / 1000
@@ -297,14 +325,14 @@ class LSM6DS: #pylint: disable=too-many-instance-attributes
         Note that larger ranges will be less accurate. Must be an `AccelRange`"""
         return self._cached_accel_range
 
-    #pylint: disable=no-member
+    # pylint: disable=no-member
     @accelerometer_range.setter
     def accelerometer_range(self, value):
         if not AccelRange.is_valid(value):
             raise AttributeError("range must be an `AccelRange`")
         self._accel_range = value
         self._cached_accel_range = value
-        sleep(.2) # needed to let new range settle
+        sleep(0.2)  # needed to let new range settle
 
     @property
     def gyro_range(self):
@@ -332,9 +360,9 @@ class LSM6DS: #pylint: disable=too-many-instance-attributes
             self._gyro_range = value
 
         self._cached_gyro_range = value
-        sleep(.2) # needed to let new range settle
+        sleep(0.2)  # needed to let new range settle
 
-    #pylint: enable=no-member
+    # pylint: enable=no-member
 
     @property
     def accelerometer_data_rate(self):
@@ -349,7 +377,6 @@ class LSM6DS: #pylint: disable=too-many-instance-attributes
 
         self._accel_data_rate = value
         # sleep(.2) # needed to let new range settle
-
 
     @property
     def gyro_data_rate(self):
@@ -387,7 +414,7 @@ class LSM6DS: #pylint: disable=too-many-instance-attributes
         self._pass_filter = value
 
 
-class LSM6DSOX(LSM6DS): #pylint: disable=too-many-instance-attributes
+class LSM6DSOX(LSM6DS):  # pylint: disable=too-many-instance-attributes
 
     """Driver for the LSM6DSOX 6-axis accelerometer and gyroscope.
 
@@ -395,12 +422,15 @@ class LSM6DSOX(LSM6DS): #pylint: disable=too-many-instance-attributes
         :param address: The I2C slave address of the sensor
 
     """
+
     CHIP_ID = _LSM6DS_CHIP_ID
+
     def __init__(self, i2c_bus, address=_LSM6DS_DEFAULT_ADDRESS):
         super().__init__(i2c_bus, address)
         self._i3c_disable = True
 
-class LSM6DS33(LSM6DS): #pylint: disable=too-many-instance-attributes
+
+class LSM6DS33(LSM6DS):  # pylint: disable=too-many-instance-attributes
 
     """Driver for the LSM6DS33 6-axis accelerometer and gyroscope.
 
@@ -408,9 +438,11 @@ class LSM6DS33(LSM6DS): #pylint: disable=too-many-instance-attributes
         :param address: The I2C slave address of the sensor
 
     """
+
     CHIP_ID = _LSM6DS33_CHIP_ID
 
-class ISM330DHCT(LSM6DS): #pylint: disable=too-many-instance-attributes
+
+class ISM330DHCT(LSM6DS):  # pylint: disable=too-many-instance-attributes
 
     """Driver for the LSM6DS33 6-axis accelerometer and gyroscope.
 
@@ -418,7 +450,9 @@ class ISM330DHCT(LSM6DS): #pylint: disable=too-many-instance-attributes
         :param address: The I2C slave address of the sensor
 
     """
+
     CHIP_ID = _ISM330DHCT_CHIP_ID
+
     def __init__(self, i2c_bus, address=_LSM6DS_DEFAULT_ADDRESS):
         super().__init__(i2c_bus, address)
 

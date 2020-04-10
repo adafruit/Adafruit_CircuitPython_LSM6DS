@@ -121,8 +121,6 @@ class CV:
 class AccelRange(CV):
     """Options for ``accelerometer_range``"""
 
-    pass  # pylint: disable=unnecessary-pass
-
 
 AccelRange.add_values(
     (
@@ -136,8 +134,6 @@ AccelRange.add_values(
 
 class GyroRange(CV):
     """Options for ``gyro_data_range``"""
-
-    pass  # pylint: disable=unnecessary-pass
 
 
 GyroRange.add_values(
@@ -154,8 +150,6 @@ GyroRange.add_values(
 
 class Rate(CV):
     """Options for ``accelerometer_data_rate`` and ``gyro_data_rate``"""
-
-    pass  # pylint: disable=unnecessary-pass
 
 
 Rate.add_values(
@@ -178,8 +172,6 @@ Rate.add_values(
 
 class AccelHPF(CV):
     """Options for the accelerometer high pass filter"""
-
-    pass  # pylint: disable=unnecessary-pass
 
 
 AccelHPF.add_values(

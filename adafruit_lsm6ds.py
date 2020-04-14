@@ -135,6 +135,7 @@ AccelRange.add_values(
 class GyroRange(CV):
     """Options for ``gyro_data_range``"""
 
+
 GyroRange.add_values(
     (
         ("RANGE_125_DPS", 125, 125, 4.375),

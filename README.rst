@@ -69,7 +69,7 @@ Usage Example
 
     while True:
         print("Acceleration: X:%.2f, Y: %.2f, Z: %.2f m/s^2"%(sox.acceleration))
-        print("Gyro X:%.2f, Y: %.2f, Z: %.2f degrees/s"%(sox.gyro))
+        print("Gyro X:%.2f, Y: %.2f, Z: %.2f radians/s"%(sox.gyro))
         print("")
         time.sleep(0.5)
 

@@ -95,6 +95,7 @@ _LSM6DS_STEP_COUNTER = const(0x4B)
 _LSM6DS_TAP_CFG = const(0x58)
 
 _MILLI_G_TO_ACCEL = 0.00980665
+_DPS_TO_RADS = 0.017453293
 
 
 class CV:
@@ -293,11 +294,11 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
 
     @property
     def gyro(self):
-        """The x, y, z angular velocity values returned in a 3-tuple and are in degrees / second"""
+        """The x, y, z angular velocity values returned in a 3-tuple and are in radians / second"""
         raw_gyro_data = self._raw_gyro_data
-        x = self._scale_gyro_data(raw_gyro_data[0])
-        y = self._scale_gyro_data(raw_gyro_data[1])
-        z = self._scale_gyro_data(raw_gyro_data[2])
+        x = self._scale_gyro_data(raw_gyro_data[0]) * _DPS_TO_RADS
+        y = self._scale_gyro_data(raw_gyro_data[1]) * _DPS_TO_RADS
+        z = self._scale_gyro_data(raw_gyro_data[2]) * _DPS_TO_RADS
 
         return (x, y, z)
 

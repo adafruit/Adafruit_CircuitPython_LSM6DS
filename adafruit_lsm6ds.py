@@ -50,6 +50,7 @@ __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_LSM6DSOX.git"
 from time import sleep
 from micropython import const
+from math import radians
 import adafruit_bus_device.i2c_device as i2c_device
 from adafruit_register.i2c_struct import ROUnaryStruct, Struct
 from adafruit_register.i2c_bits import RWBits
@@ -95,7 +96,6 @@ _LSM6DS_STEP_COUNTER = const(0x4B)
 _LSM6DS_TAP_CFG = const(0x58)
 
 _MILLI_G_TO_ACCEL = 0.00980665
-_DPS_TO_RADS = 0.017453293
 
 
 class CV:
@@ -296,10 +296,7 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
     def gyro(self):
         """The x, y, z angular velocity values returned in a 3-tuple and are in radians / second"""
         raw_gyro_data = self._raw_gyro_data
-        x = self._scale_gyro_data(raw_gyro_data[0]) * _DPS_TO_RADS
-        y = self._scale_gyro_data(raw_gyro_data[1]) * _DPS_TO_RADS
-        z = self._scale_gyro_data(raw_gyro_data[2]) * _DPS_TO_RADS
-
+        x, y, z = [radians(self._scale_gyro_data(i)) for i in raw_gyro_data]
         return (x, y, z)
 
     def _scale_xl_data(self, raw_measurement):

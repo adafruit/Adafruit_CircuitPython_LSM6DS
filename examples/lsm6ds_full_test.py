@@ -28,7 +28,7 @@ print("Gyro rate set to: %d HZ" % Rate.string[sensor.gyro_data_rate])
 
 while True:
     print(
-        "Accel X:%.2f Y:%.2f Z:%.2f ms^2 Gyro X:%.2f Y:%.2f Z:%.2f degrees/s"
+        "Accel X:%.2f Y:%.2f Z:%.2f ms^2 Gyro X:%.2f Y:%.2f Z:%.2f radians/s"
         % (sensor.acceleration + sensor.gyro)
     )
     time.sleep(0.05)

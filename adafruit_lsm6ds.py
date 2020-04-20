@@ -49,6 +49,7 @@ Implementation Notes
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_LSM6DSOX.git"
 from time import sleep
+from math import radians
 from micropython import const
 import adafruit_bus_device.i2c_device as i2c_device
 from adafruit_register.i2c_struct import ROUnaryStruct, Struct
@@ -293,12 +294,9 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
 
     @property
     def gyro(self):
-        """The x, y, z angular velocity values returned in a 3-tuple and are in degrees / second"""
+        """The x, y, z angular velocity values returned in a 3-tuple and are in radians / second"""
         raw_gyro_data = self._raw_gyro_data
-        x = self._scale_gyro_data(raw_gyro_data[0])
-        y = self._scale_gyro_data(raw_gyro_data[1])
-        z = self._scale_gyro_data(raw_gyro_data[2])
-
+        x, y, z = [radians(self._scale_gyro_data(i)) for i in raw_gyro_data]
         return (x, y, z)
 
     def _scale_xl_data(self, raw_measurement):

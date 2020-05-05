@@ -196,19 +196,11 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
 
     # ROUnaryStructs:
     _chip_id = ROUnaryStruct(_LSM6DS_WHOAMI, "<b")
-    _temperature = ROUnaryStruct(_LSM6DS_OUT_TEMP_L, "<h")
 
+    # Structs
+    _raw_accel_data = Struct(_LSM6DS_OUTX_L_A, "<hhh")
+    _raw_gyro_data = Struct(_LSM6DS_OUTX_L_G, "<hhh")
     # RWBits:
-    _ois_ctrl_from_ui = RWBit(_LSM6DS_FUNC_CFG_ACCESS, 0)
-    _shub_reg_access = RWBit(_LSM6DS_FUNC_CFG_ACCESS, 6)
-    _func_cfg_access = RWBit(_LSM6DS_FUNC_CFG_ACCESS, 7)
-    _sdo_pu_en = RWBit(_LSM6DS_PIN_CTRL, 6)
-    _ois_pu_dis = RWBit(_LSM6DS_PIN_CTRL, 7)
-    _spi2_read_en = RWBit(_LSM6DS_UI_INT_OIS, 3)
-    _den_lh_ois = RWBit(_LSM6DS_UI_INT_OIS, 5)
-    _lvl2_ois = RWBit(_LSM6DS_UI_INT_OIS, 6)
-    _int2_drdy_ois = RWBit(_LSM6DS_UI_INT_OIS, 7)
-    _lpf_xl = RWBit(_LSM6DS_CTRL1_XL, 1)
 
     _accel_range = RWBits(2, _LSM6DS_CTRL1_XL, 2)
     _accel_data_rate = RWBits(4, _LSM6DS_CTRL1_XL, 4)
@@ -219,36 +211,14 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
     _gyro_range_4000dps = RWBit(_LSM6DS_CTRL2_G, 0)
 
     _sw_reset = RWBit(_LSM6DS_CTRL3_C, 0)
-    _sim = RWBit(_LSM6DS_CTRL3_C, 3)
-    _pp_od = RWBit(_LSM6DS_CTRL3_C, 4)
-    _h_lactive = RWBit(_LSM6DS_CTRL3_C, 5)
     _bdu = RWBit(_LSM6DS_CTRL3_C, 6)
     _boot = RWBit(_LSM6DS_CTRL3_C, 7)
-    _st_xl = RWBits(2, _LSM6DS_CTRL_5_C, 0)
-    _st_g = RWBits(2, _LSM6DS_CTRL_5_C, 2)
-    _rounding_status = RWBit(_LSM6DS_CTRL_5_C, 4)
-    _rounding = RWBits(2, _LSM6DS_CTRL_5_C, 5)
-    _xl_ulp_en = RWBit(_LSM6DS_CTRL_5_C, 7)
-    _aux_sens_on = RWBits(2, _LSM6DS_MASTER_CONFIG, 0)
-    _master_on = RWBit(_LSM6DS_MASTER_CONFIG, 2)
-    _shub_pu_en = RWBit(_LSM6DS_MASTER_CONFIG, 3)
-    _pass_through_mode = RWBit(_LSM6DS_MASTER_CONFIG, 4)
-    _start_config = RWBit(_LSM6DS_MASTER_CONFIG, 5)
-    _write_once = RWBit(_LSM6DS_MASTER_CONFIG, 6)
-    _rst_master_regs = RWBit(_LSM6DS_MASTER_CONFIG, 7)
+
+    _high_pass_filter = RWBits(2, _LSM6DS_CTRL8_XL, 5)
     _i3c_disable = RWBit(_LSM6DS_CTRL9_XL, 1)
-
-    _raw_temp = ROUnaryStruct(_LSM6DS_OUT_TEMP_L, "<h")
-    _raw_accel_data = Struct(_LSM6DS_OUTX_L_A, "<hhh")
-    _raw_gyro_data = Struct(_LSM6DS_OUTX_L_G, "<hhh")
-
-    pedometer_steps = ROUnaryStruct(_LSM6DS_STEP_COUNTER, "<h")
-    pedometer_reset = RWBit(_LSM6DS_CTRL10_C, 1)
-    _ped_enable = RWBit(_LSM6DS_TAP_CFG, 6)
+    _pedometer_reset = RWBit(_LSM6DS_CTRL10_C, 1)
     _func_enable = RWBit(_LSM6DS_CTRL10_C, 2)
-
-    high_pass_filter_enabled = RWBit(_LSM6DS_CTRL8_XL, 2)
-    _pass_filter = RWBits(2, _LSM6DS_CTRL8_XL, 5)
+    _ped_enable = RWBit(_LSM6DS_TAP_CFG, 6)
 
     CHIP_ID = None
 
@@ -390,18 +360,18 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
     def pedometer_enable(self, enable):
         self._ped_enable = enable
         self._func_enable = enable
-        self.pedometer_reset = enable
+        self._pedometer_reset = enable
 
     @property
     def high_pass_filter(self):
         """The high pass filter applied to accelerometer data"""
-        return self._pass_filter
+        return self._high_pass_filter
 
     @high_pass_filter.setter
     def high_pass_filter(self, value):
         if not AccelHPF.is_valid(value):
             raise AttributeError("range must be an `AccelHPF`")
-        self._pass_filter = value
+        self._high_pass_filter = value
 
 
 class LSM6DSOX(LSM6DS):  # pylint: disable=too-many-instance-attributes

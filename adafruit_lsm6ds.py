@@ -212,7 +212,6 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
 
     _sw_reset = RWBit(_LSM6DS_CTRL3_C, 0)
     _bdu = RWBit(_LSM6DS_CTRL3_C, 6)
-    _boot = RWBit(_LSM6DS_CTRL3_C, 7)
 
     _high_pass_filter = RWBits(2, _LSM6DS_CTRL8_XL, 5)
     _i3c_disable = RWBit(_LSM6DS_CTRL9_XL, 1)
@@ -247,9 +246,6 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
         "Resets the sensor's configuration into an initial state"
         self._sw_reset = True
         while self._sw_reset:
-            sleep(0.001)
-        self._boot = True
-        while self._boot:
             sleep(0.001)
 
     @property

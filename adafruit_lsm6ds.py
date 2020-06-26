@@ -63,7 +63,7 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_LSM6DSOX.git"
 _LSM6DS_DEFAULT_ADDRESS = const(0x6A)
 
 _LSM6DS_CHIP_ID = const(0x6C)
-_ISM330DHCT_CHIP_ID = const(0x6B)
+_ISM330DHCX_CHIP_ID = const(0x6B)
 _LSM6DS33_CHIP_ID = const(0x69)
 
 _LSM6DS_FUNC_CFG_ACCESS = const(0x1)
@@ -294,15 +294,15 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
     def gyro_range(self):
         """Adjusts the range of values that the sensor can measure, from 125 Degrees/second to 4000
         degrees/s. Note that larger ranges will be less accurate. Must be a `GyroRange`. 4000 DPS
-        is only available for the ISM330DHCT"""
+        is only available for the ISM330DHCX"""
         return self._cached_gyro_range
 
     @gyro_range.setter
     def gyro_range(self, value):
         if not GyroRange.is_valid(value):
             raise AttributeError("range must be a `GyroRange`")
-        if value is GyroRange.RANGE_4000_DPS and not isinstance(self, ISM330DHCT):
-            raise AttributeError("4000 DPS is only available for ISM330DHCT")
+        if value is GyroRange.RANGE_4000_DPS and not isinstance(self, ISM330DHCX):
+            raise AttributeError("4000 DPS is only available for ISM330DHCX")
 
         if value is GyroRange.RANGE_125_DPS:
             self._gyro_range_125dps = True
@@ -398,7 +398,7 @@ class LSM6DS33(LSM6DS):  # pylint: disable=too-many-instance-attributes
     CHIP_ID = _LSM6DS33_CHIP_ID
 
 
-class ISM330DHCT(LSM6DS):  # pylint: disable=too-many-instance-attributes
+class ISM330DHCX(LSM6DS):  # pylint: disable=too-many-instance-attributes
 
     """Driver for the LSM6DS33 6-axis accelerometer and gyroscope.
 
@@ -407,7 +407,7 @@ class ISM330DHCT(LSM6DS):  # pylint: disable=too-many-instance-attributes
 
     """
 
-    CHIP_ID = _ISM330DHCT_CHIP_ID
+    CHIP_ID = _ISM330DHCX_CHIP_ID
 
     def __init__(self, i2c_bus, address=_LSM6DS_DEFAULT_ADDRESS):
         super().__init__(i2c_bus, address)

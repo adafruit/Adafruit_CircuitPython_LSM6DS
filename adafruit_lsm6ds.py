@@ -123,16 +123,6 @@ class AccelRange(CV):
     """Options for ``accelerometer_range``"""
 
 
-AccelRange.add_values(
-    (
-        ("RANGE_2G", 0, 2, 0.061),
-        ("RANGE_16G", 1, 16, 0.488),
-        ("RANGE_4G", 2, 4, 0.122),
-        ("RANGE_8G", 3, 8, 0.244),
-    )
-)
-
-
 class GyroRange(CV):
     """Options for ``gyro_data_range``"""
 
@@ -236,6 +226,7 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
 
         self._bdu = True
 
+        self._add_accel_ranges()
         self.accelerometer_data_rate = Rate.RATE_104_HZ  # pylint: disable=no-member
         self.gyro_data_rate = Rate.RATE_104_HZ  # pylint: disable=no-member
 
@@ -248,10 +239,22 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
         while self._sw_reset:
             sleep(0.001)
 
+    @staticmethod
+    def _add_accel_ranges():
+        AccelRange.add_values(
+            (
+                ("RANGE_2G", 0, 2, 0.061),
+                ("RANGE_16G", 1, 16, 0.488),
+                ("RANGE_4G", 2, 4, 0.122),
+                ("RANGE_8G", 3, 8, 0.244),
+            )
+        )
+
     @property
     def acceleration(self):
         """The x, y, z acceleration values returned in a 3-tuple and are in m / s ^ 2."""
         raw_accel_data = self._raw_accel_data
+
         x = self._scale_xl_data(raw_accel_data[0])
         y = self._scale_xl_data(raw_accel_data[1])
         z = self._scale_xl_data(raw_accel_data[2])
@@ -384,6 +387,33 @@ class LSM6DSOX(LSM6DS):  # pylint: disable=too-many-instance-attributes
     def __init__(self, i2c_bus, address=_LSM6DS_DEFAULT_ADDRESS):
         super().__init__(i2c_bus, address)
         self._i3c_disable = True
+
+
+class LSM6DSO32(LSM6DS):  # pylint: disable=too-many-instance-attributes
+
+    """Driver for the LSM6DSO32 6-axis accelerometer and gyroscope.
+
+        :param ~busio.I2C i2c_bus: The I2C bus the LSM6DSO32 is connected to.
+        :param address: The I2C slave address of the sensor
+
+    """
+
+    CHIP_ID = _LSM6DS_CHIP_ID
+
+    def __init__(self, i2c_bus, address=_LSM6DS_DEFAULT_ADDRESS):
+        super().__init__(i2c_bus, address)
+        self._i3c_disable = True
+        self.accelerometer_range = AccelRange.RANGE_8G  # pylint:disable=no-member
+
+    def _add_accel_ranges(self):
+        AccelRange.add_values(
+            (
+                ("RANGE_4G", 0, 4, 0.122),
+                ("RANGE_32G", 1, 32, 0.976),
+                ("RANGE_8G", 2, 8, 0.244),
+                ("RANGE_16G", 3, 16, 0.488),
+            )
+        )
 
 
 class LSM6DS33(LSM6DS):  # pylint: disable=too-many-instance-attributes

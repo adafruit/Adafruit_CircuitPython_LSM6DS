@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+# SPDX-FileCopyrightText: 2017 Scott Shawcroft, written for Adafruit Industries
+#
+# SPDX-License-Identifier: MIT
+
 import os
 import sys
 
@@ -46,7 +50,7 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = "Adafruit LSM6DSOX Library"
+project = "Adafruit LSM6DS Library"
 copyright = "2019 Bryan Siepert"
 author = "Bryan Siepert"
 
@@ -122,7 +126,7 @@ html_static_path = ["_static"]
 html_favicon = "_static/favicon.ico"
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = "AdafruitLsm6dsoxLibrarydoc"
+htmlhelp_basename = "AdafruitLsm6dsLibrarydoc"
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -147,8 +151,8 @@ latex_elements = {
 latex_documents = [
     (
         master_doc,
-        "AdafruitLSM6DSOXLibrary.tex",
-        "AdafruitLSM6DSOX Library Documentation",
+        "AdafruitLSM6DSLibrary.tex",
+        "AdafruitLSM6DS Library Documentation",
         author,
         "manual",
     ),
@@ -161,11 +165,11 @@ latex_documents = [
 man_pages = [
     (
         master_doc,
-        "AdafruitLSM6DSOXlibrary",
-        "Adafruit LSM6DSOX Library Documentation",
+        "AdafruitLSM6DSlibrary",
+        "Adafruit LSM6DS Library Documentation",
         [author],
         1,
-    )
+    ),
 ]
 
 # -- Options for Texinfo output -------------------------------------------
@@ -176,10 +180,10 @@ man_pages = [
 texinfo_documents = [
     (
         master_doc,
-        "AdafruitLSM6DSOXLibrary",
-        "Adafruit LSM6DSOX Library Documentation",
+        "AdafruitLSM6DSLibrary",
+        "Adafruit LSM6DS Library Documentation",
         author,
-        "AdafruitLSM6DSOXLibrary",
+        "AdafruitLSM6DSLibrary",
         "One line description of project.",
         "Miscellaneous",
     ),

@@ -6,7 +6,7 @@ Introduction
     :alt: Documentation Status
 
 .. image:: https://img.shields.io/discord/327254708534116352.svg
-    :target: https://adafru.it/discord
+    :target: https://discord.gg/nBQh6qu
     :alt: Discord
 
 
@@ -14,7 +14,11 @@ Introduction
     :target: https://github.com/adafruit/Adafruit_CircuitPython_LSM6DS/actions
     :alt: Build Status
 
-CircuitPython library for the ST LSM6DSOX, LSM6DS33, and ISM330DHCX 6-dof Accelerometer and Gyros
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/psf/black
+    :alt: Code Style: Black
+
+CircuitPython helper library for the LSM6DS family of motion sensors from ST
 
 
 Dependencies
@@ -27,7 +31,7 @@ This driver depends on:
 
 Please ensure all dependencies are available on the CircuitPython filesystem.
 This is easily achieved by downloading
-`the Adafruit library and driver bundle <https://github.com/adafruit/Adafruit_CircuitPython_Bundle>`_.
+`the Adafruit library and driver bundle <https://circuitpython.org/libraries>`_.
 
 Installing from PyPI
 =====================

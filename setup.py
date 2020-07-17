@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2017 Scott Shawcroft, written for Adafruit Industries
+# SPDX-FileCopyrightText: Copyright (c) 2020 Bryan Siepert for Adafruit Industries
+#
+# SPDX-License-Identifier: MIT
+
 """A setuptools based setup module.
 
 See:
@@ -21,7 +26,7 @@ setup(
     name="adafruit-circuitpython-lsm6ds",
     use_scm_version=True,
     setup_requires=["setuptools_scm"],
-    description="CircuitPython library for the ST LSM6DSOX, LSM6DS33, and ISM330DHCX 6-DOF Accelerometer and Gyros",
+    description="CircuitPython helper library for the LSM6DS family of motion sensors from ST",
     long_description=long_description,
     long_description_content_type="text/x-rst",
     # The project's main homepage.
@@ -48,8 +53,7 @@ setup(
         "Programming Language :: Python :: 3.5",
     ],
     # What does your project relate to?
-    keywords="adafruit blinka circuitpython micropython lsm6ds lsm6dsox lsm6ds33 icm330dhcx imu gyro gyroscope inemo"
-    "accelerometer",
+    keywords="adafruit blinka circuitpython micropython lsm6ds lsm6dsox lsmds33 lsm6dso32 st imu gyro accelerometer ism330dhcx imu gyro gyroscope inemo",
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
     # TODO: IF LIBRARY FILES ARE A PACKAGE FOLDER,

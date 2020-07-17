@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Copyright (c) 2020 Bryan Siepert for Adafruit Industries
+#
+# SPDX-License-Identifier: MIT
 # The MIT License (MIT)
 #
 # Copyright (c) 2019 Bryan Siepert for Adafruit Industries
@@ -23,7 +26,7 @@
 `adafruit_lsm6ds`
 ================================================================================
 
-CircuitPython library for the ST LSM6DSOX 6-axis Accelerometer and Gyro
+CircuitPython helper library for the LSM6DS family of motion sensors from ST
 
 
 * Author(s): Bryan Siepert
@@ -35,6 +38,19 @@ Implementation Notes
 
 * Adafruit LSM6DSOX Breakout <https://www.adafruit.com/products/4438>
 
+* Adafruit ISM330DHCX Breakout <https://www.adafruit.com/product/4502>
+
+* Adafruit LSM6DSO32  Breakout <https://www.adafruit.com/product/4692>
+
+* Adafruit LSM6DS33 Breakout <https://www.adafruit.com/product/4480>
+
+* Adafruit ISM330DHCX + LIS3MDL FEATHERWING <https://www.adafruit.com/product/4569>
+
+* Adafruit LSM6DSOX + LIS3MDL - 9 DOF IMU Breakout <https://www.adafruit.com/product/4517>
+
+* Adafruit LSM6DS33 + LIS3MDL - 9 DOF IMU Breakout <https://www.adafruit.com/product/4485>
+
+* Adafruit LSM6DSOX + LIS3MDL  9 DOF IMU FeatherWing <https://www.adafruit.com/product/4565>
 
 **Software and Dependencies:**
 
@@ -57,7 +73,7 @@ from adafruit_register.i2c_bits import RWBits
 from adafruit_register.i2c_bit import RWBit
 
 __version__ = "0.0.0-auto.0"
-__repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_LSM6DSOX.git"
+__repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_LSM6DS.git"
 
 
 _LSM6DS_DEFAULT_ADDRESS = const(0x6A)

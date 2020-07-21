@@ -6,7 +6,7 @@ Introduction
     :alt: Documentation Status
 
 .. image:: https://img.shields.io/discord/327254708534116352.svg
-    :target: https://discord.gg/nBQh6qu
+    :target: https://adafru.it/discord
     :alt: Discord
 
 
@@ -65,11 +65,11 @@ Usage Example
     import time
     import board
     import busio
-    import adafruit_lsm6ds
+    from adafruit_lsm6ds.lsm6dsox import LSM6DSOX
 
     i2c = busio.I2C(board.SCL, board.SDA)
 
-    sox = adafruit_lsm6ds.LSM6DSOX(i2c)
+    sox = LSM6DSOX(i2c)
 
     while True:
         print("Acceleration: X:%.2f, Y: %.2f, Z: %.2f m/s^2"%(sox.acceleration))

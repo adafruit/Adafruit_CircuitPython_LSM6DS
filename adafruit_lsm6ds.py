@@ -196,6 +196,7 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
 
     # ROUnaryStructs:
     _chip_id = ROUnaryStruct(_LSM6DS_WHOAMI, "<b")
+    pedometer_steps = ROUnaryStruct(_LSM6DS_STEP_COUNTER, "<h")
 
     # Structs
     _raw_accel_data = Struct(_LSM6DS_OUTX_L_A, "<hhh")

@@ -4,6 +4,7 @@
 """
 This module provides the ISM330DHCX subclass of LSM6DS for using ISM330DHCX sensors.
 """
+from time import sleep
 from . import LSM6DS, LSM6DS_DEFAULT_ADDRESS, GyroRange
 
 
@@ -19,11 +20,6 @@ class ISM330DHCX(LSM6DS):  # pylint: disable=too-many-instance-attributes
     CHIP_ID = 0x6B
 
     def __init__(self, i2c_bus, address=LSM6DS_DEFAULT_ADDRESS):
-        super().__init__(i2c_bus, address)
-
-        # Called DEVICE_CONF in the datasheet, but it recommends setting it
-        self._i3c_disable = True
-
         GyroRange.add_values(
             (
                 ("RANGE_125_DPS", 125, 125, 4.375),
@@ -34,3 +30,25 @@ class ISM330DHCX(LSM6DS):  # pylint: disable=too-many-instance-attributes
                 ("RANGE_4000_DPS", 4000, 4000, 140.0),
             )
         )
+        super().__init__(i2c_bus, address)
+
+        # Called DEVICE_CONF in the datasheet, but it recommends setting it
+        self._i3c_disable = True
+
+    @property
+    def gyro_range(self):
+        """Adjusts the range of values that the sensor can measure, from 125 Degrees/s to 4000
+        degrees/s. Note that larger ranges will be less accurate. Must be a `GyroRange`. 4000 DPS
+        is only available for the ISM330DHCX"""
+        return self._cached_gyro_range
+
+    @gyro_range.setter
+    def gyro_range(self, value):
+        super()._set_gyro_range(value)
+
+        # range uses the `FS_4000` bit
+        if value is GyroRange.RANGE_4000_DPS:  # pylint: disable=no-member
+            self._gyro_range_125dps = False
+            self._gyro_range_4000dps = True
+
+        sleep(0.2)  # needed to let new range settle

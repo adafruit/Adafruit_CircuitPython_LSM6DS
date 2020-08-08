@@ -63,9 +63,6 @@ Implementation Notes
 """
 
 __version__ = "0.0.0-auto.0"
-__repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_LSM6DSOX.git"
-
-__version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_LSM6DS.git"
 
 from time import sleep
@@ -212,7 +209,8 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
                 "Failed to find %s - check your wiring!" % self.__class__.__name__
             )
         self.reset()
-        self._add_gyro_ranges()
+        if not hasattr(GyroRange, "string"):
+            self._add_gyro_ranges()
         self._bdu = True
 
         self._add_accel_ranges()
@@ -296,30 +294,29 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
 
     @property
     def gyro_range(self):
-        """Adjusts the range of values that the sensor can measure, from 125 Degrees/second to 4000
-        degrees/s. Note that larger ranges will be less accurate. Must be a `GyroRange`. 4000 DPS
-        is only available for the ISM330DHCX"""
+        """Adjusts the range of values that the sensor can measure, from 125 Degrees/s to 2000
+        degrees/s. Note that larger ranges will be less accurate. Must be a `GyroRange`."""
         return self._cached_gyro_range
 
     @gyro_range.setter
     def gyro_range(self, value):
+        self._set_gyro_range(value)
+        sleep(0.2)
+
+    def _set_gyro_range(self, value):
         if not GyroRange.is_valid(value):
             raise AttributeError("range must be a `GyroRange`")
-        if value is GyroRange.RANGE_125_DPS:
-            self._gyro_range_125dps = True
-            self._gyro_range_4000dps = False
-        elif value == 4000:
+        self._gyro_range_4000dps = False
+
+        # range uses `FS_G` enum
+        if value <= GyroRange.RANGE_2000_DPS:  # pylint: disable=no-member
             self._gyro_range_125dps = False
-            self._gyro_range_4000dps = True
-        else:
-            self._gyro_range_125dps = False
-            self._gyro_range_4000dps = False
             self._gyro_range = value
+        # range uses the `FS_125` bit
+        if value is GyroRange.RANGE_125_DPS:  # pylint: disable=no-member
+            self._gyro_range_125dps = True
 
-        self._cached_gyro_range = value
-        sleep(0.2)  # needed to let new range settle
-
-    # pylint: enable=no-member
+        self._cached_gyro_range = value  # needed to let new range settle
 
     @property
     def accelerometer_data_rate(self):

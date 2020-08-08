@@ -5,7 +5,9 @@
 This module provides the ISM330DHCX subclass of LSM6DS for using ISM330DHCX sensors.
 """
 from time import sleep
-from . import LSM6DS, LSM6DS_DEFAULT_ADDRESS, GyroRange
+from . import LSM6DS, LSM6DS_DEFAULT_ADDRESS, GyroRange, RWBit, const
+
+_LSM6DS_CTRL2_G = const(0x11)
 
 
 class ISM330DHCX(LSM6DS):  # pylint: disable=too-many-instance-attributes
@@ -18,6 +20,7 @@ class ISM330DHCX(LSM6DS):  # pylint: disable=too-many-instance-attributes
     """
 
     CHIP_ID = 0x6B
+    _gyro_range_4000dps = RWBit(_LSM6DS_CTRL2_G, 0)
 
     def __init__(self, i2c_bus, address=LSM6DS_DEFAULT_ADDRESS):
         GyroRange.add_values(
@@ -50,5 +53,7 @@ class ISM330DHCX(LSM6DS):  # pylint: disable=too-many-instance-attributes
         if value is GyroRange.RANGE_4000_DPS:  # pylint: disable=no-member
             self._gyro_range_125dps = False
             self._gyro_range_4000dps = True
+        else:
+            self._gyro_range_4000dps = False
 
         sleep(0.2)  # needed to let new range settle

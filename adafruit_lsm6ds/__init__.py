@@ -182,7 +182,6 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
     _gyro_data_rate = RWBits(4, _LSM6DS_CTRL2_G, 4)
     _gyro_range = RWBits(2, _LSM6DS_CTRL2_G, 2)
     _gyro_range_125dps = RWBit(_LSM6DS_CTRL2_G, 1)
-    _gyro_range_4000dps = RWBit(_LSM6DS_CTRL2_G, 0)
 
     _sw_reset = RWBit(_LSM6DS_CTRL3_C, 0)
     _bdu = RWBit(_LSM6DS_CTRL3_C, 6)
@@ -306,7 +305,6 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
     def _set_gyro_range(self, value):
         if not GyroRange.is_valid(value):
             raise AttributeError("range must be a `GyroRange`")
-        self._gyro_range_4000dps = False
 
         # range uses `FS_G` enum
         if value <= GyroRange.RANGE_2000_DPS:  # pylint: disable=no-member

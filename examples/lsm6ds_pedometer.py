@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Copyright (c) 2020 Bryan Siepert for Adafruit Industries
+#
+# SPDX-License-Identifier: MIT
 """ This example shows off how to use the step counter built
 into the ST LSM6DS series IMUs. The steps are calculated in
 the chip so you don't have to do any calculations!"""
@@ -7,7 +10,8 @@ import board
 import busio
 
 # pylint:disable=no-member
-from adafruit_lsm6ds import LSM6DS33, Rate, AccelRange
+from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
+from adafruit_lsm6ds import Rate, AccelRange
 
 i2c = busio.I2C(board.SCL, board.SDA)
 

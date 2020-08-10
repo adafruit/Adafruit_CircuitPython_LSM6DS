@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Copyright (c) 2020 Bryan Siepert for Adafruit Industries
+#
+# SPDX-License-Identifier: MIT
 # The MIT License (MIT)
 #
 # Copyright (c) 2019 Bryan Siepert for Adafruit Industries
@@ -23,7 +26,7 @@
 `adafruit_lsm6ds`
 ================================================================================
 
-CircuitPython library for the ST LSM6DSOX 6-axis Accelerometer and Gyro
+CircuitPython helper library for the LSM6DS family of motion sensors from ST
 
 
 * Author(s): Bryan Siepert
@@ -35,6 +38,19 @@ Implementation Notes
 
 * Adafruit LSM6DSOX Breakout <https://www.adafruit.com/products/4438>
 
+* Adafruit ISM330DHCX Breakout <https://www.adafruit.com/product/4502>
+
+* Adafruit LSM6DSO32  Breakout <https://www.adafruit.com/product/4692>
+
+* Adafruit LSM6DS33 Breakout <https://www.adafruit.com/product/4480>
+
+* Adafruit ISM330DHCX + LIS3MDL FEATHERWING <https://www.adafruit.com/product/4569>
+
+* Adafruit LSM6DSOX + LIS3MDL - 9 DOF IMU Breakout <https://www.adafruit.com/product/4517>
+
+* Adafruit LSM6DS33 + LIS3MDL - 9 DOF IMU Breakout <https://www.adafruit.com/product/4485>
+
+* Adafruit LSM6DSOX + LIS3MDL  9 DOF IMU FeatherWing <https://www.adafruit.com/product/4565>
 
 **Software and Dependencies:**
 
@@ -47,55 +63,16 @@ Implementation Notes
 """
 
 __version__ = "0.0.0-auto.0"
-__repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_LSM6DSOX.git"
+__repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_LSM6DS.git"
+
 from time import sleep
 from math import radians
 from micropython import const
 import adafruit_bus_device.i2c_device as i2c_device
+
 from adafruit_register.i2c_struct import ROUnaryStruct, Struct
 from adafruit_register.i2c_bits import RWBits
 from adafruit_register.i2c_bit import RWBit
-
-__version__ = "0.0.0-auto.0"
-__repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_LSM6DSOX.git"
-
-
-_LSM6DS_DEFAULT_ADDRESS = const(0x6A)
-
-_LSM6DS_CHIP_ID = const(0x6C)
-_ISM330DHCX_CHIP_ID = const(0x6B)
-_LSM6DS33_CHIP_ID = const(0x69)
-
-_LSM6DS_FUNC_CFG_ACCESS = const(0x1)
-_LSM6DS_PIN_CTRL = const(0x2)
-_LSM6DS_UI_INT_OIS = const(0x6F)
-_LSM6DS_WHOAMI = const(0xF)
-_LSM6DS_CTRL1_XL = const(0x10)
-_LSM6DS_CTRL2_G = const(0x11)
-_LSM6DS_CTRL3_C = const(0x12)
-_LSM6DS_CTRL_5_C = const(0x14)
-_LSM6DS_MASTER_CONFIG = const(0x14)
-_LSM6DS_CTRL8_XL = const(0x17)
-_LSM6DS_CTRL9_XL = const(0x18)
-_LSM6DS_CTRL10_C = const(0x19)
-_LSM6DS_OUT_TEMP_L = const(0x20)
-_LSM6DS_OUT_TEMP_H = const(0x21)
-_LSM6DS_OUTX_L_G = const(0x22)
-_LSM6DS_OUTX_H_G = const(0x23)
-_LSM6DS_OUTY_L_G = const(0x24)
-_LSM6DS_OUTY_H_G = const(0x25)
-_LSM6DS_OUTZ_L_G = const(0x26)
-_LSM6DS_OUTZ_H_G = const(0x27)
-_LSM6DS_OUTX_L_A = const(0x28)
-_LSM6DS_OUTX_H_A = const(0x29)
-_LSM6DS_OUTY_L_A = const(0x2A)
-_LSM6DS_OUTY_H_A = const(0x2B)
-_LSM6DS_OUTZ_L_A = const(0x2C)
-_LSM6DS_OUTZ_H_A = const(0x2D)
-_LSM6DS_STEP_COUNTER = const(0x4B)
-_LSM6DS_TAP_CFG = const(0x58)
-
-_MILLI_G_TO_ACCEL = 0.00980665
 
 
 class CV:
@@ -123,30 +100,8 @@ class AccelRange(CV):
     """Options for ``accelerometer_range``"""
 
 
-AccelRange.add_values(
-    (
-        ("RANGE_2G", 0, 2, 0.061),
-        ("RANGE_16G", 1, 16, 0.488),
-        ("RANGE_4G", 2, 4, 0.122),
-        ("RANGE_8G", 3, 8, 0.244),
-    )
-)
-
-
 class GyroRange(CV):
     """Options for ``gyro_data_range``"""
-
-
-GyroRange.add_values(
-    (
-        ("RANGE_125_DPS", 125, 125, 4.375),
-        ("RANGE_250_DPS", 0, 250, 8.75),
-        ("RANGE_500_DPS", 1, 500, 17.50),
-        ("RANGE_1000_DPS", 2, 1000, 35.0),
-        ("RANGE_2000_DPS", 3, 2000, 70.0),
-        ("RANGE_4000_DPS", 4000, 4000, 140.0),
-    )
-)
 
 
 class Rate(CV):
@@ -184,6 +139,25 @@ AccelHPF.add_values(
     )
 )
 
+LSM6DS_DEFAULT_ADDRESS = const(0x6A)
+
+LSM6DS_CHIP_ID = const(0x6C)
+
+_LSM6DS_WHOAMI = const(0xF)
+_LSM6DS_CTRL1_XL = const(0x10)
+_LSM6DS_CTRL2_G = const(0x11)
+_LSM6DS_CTRL3_C = const(0x12)
+_LSM6DS_CTRL8_XL = const(0x17)
+_LSM6DS_CTRL9_XL = const(0x18)
+_LSM6DS_CTRL10_C = const(0x19)
+_LSM6DS_OUT_TEMP_L = const(0x20)
+_LSM6DS_OUTX_L_G = const(0x22)
+_LSM6DS_OUTX_L_A = const(0x28)
+_LSM6DS_STEP_COUNTER = const(0x4B)
+_LSM6DS_TAP_CFG = const(0x58)
+
+_MILLI_G_TO_ACCEL = 0.00980665
+
 
 class LSM6DS:  # pylint: disable=too-many-instance-attributes
 
@@ -208,7 +182,6 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
     _gyro_data_rate = RWBits(4, _LSM6DS_CTRL2_G, 4)
     _gyro_range = RWBits(2, _LSM6DS_CTRL2_G, 2)
     _gyro_range_125dps = RWBit(_LSM6DS_CTRL2_G, 1)
-    _gyro_range_4000dps = RWBit(_LSM6DS_CTRL2_G, 0)
 
     _sw_reset = RWBit(_LSM6DS_CTRL3_C, 0)
     _bdu = RWBit(_LSM6DS_CTRL3_C, 6)
@@ -218,10 +191,12 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
     _pedometer_reset = RWBit(_LSM6DS_CTRL10_C, 1)
     _func_enable = RWBit(_LSM6DS_CTRL10_C, 2)
     _ped_enable = RWBit(_LSM6DS_TAP_CFG, 6)
-
+    pedometer_steps = ROUnaryStruct(_LSM6DS_STEP_COUNTER, "<h")
+    """The number of steps detected by the pedometer. You must enable with `pedometer_enable`
+    before calling. Use `pedometer_reset` to reset the number of steps"""
     CHIP_ID = None
 
-    def __init__(self, i2c_bus, address=_LSM6DS_DEFAULT_ADDRESS):
+    def __init__(self, i2c_bus, address=LSM6DS_DEFAULT_ADDRESS):
         self._cached_accel_range = None
         self._cached_gyro_range = None
 
@@ -233,9 +208,11 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
                 "Failed to find %s - check your wiring!" % self.__class__.__name__
             )
         self.reset()
-
+        if not hasattr(GyroRange, "string"):
+            self._add_gyro_ranges()
         self._bdu = True
 
+        self._add_accel_ranges()
         self.accelerometer_data_rate = Rate.RATE_104_HZ  # pylint: disable=no-member
         self.gyro_data_rate = Rate.RATE_104_HZ  # pylint: disable=no-member
 
@@ -248,10 +225,34 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
         while self._sw_reset:
             sleep(0.001)
 
+    @staticmethod
+    def _add_gyro_ranges():
+        GyroRange.add_values(
+            (
+                ("RANGE_125_DPS", 125, 125, 4.375),
+                ("RANGE_250_DPS", 0, 250, 8.75),
+                ("RANGE_500_DPS", 1, 500, 17.50),
+                ("RANGE_1000_DPS", 2, 1000, 35.0),
+                ("RANGE_2000_DPS", 3, 2000, 70.0),
+            )
+        )
+
+    @staticmethod
+    def _add_accel_ranges():
+        AccelRange.add_values(
+            (
+                ("RANGE_2G", 0, 2, 0.061),
+                ("RANGE_16G", 1, 16, 0.488),
+                ("RANGE_4G", 2, 4, 0.122),
+                ("RANGE_8G", 3, 8, 0.244),
+            )
+        )
+
     @property
     def acceleration(self):
         """The x, y, z acceleration values returned in a 3-tuple and are in m / s ^ 2."""
         raw_accel_data = self._raw_accel_data
+
         x = self._scale_xl_data(raw_accel_data[0])
         y = self._scale_xl_data(raw_accel_data[1])
         z = self._scale_xl_data(raw_accel_data[2])
@@ -292,33 +293,28 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
 
     @property
     def gyro_range(self):
-        """Adjusts the range of values that the sensor can measure, from 125 Degrees/second to 4000
-        degrees/s. Note that larger ranges will be less accurate. Must be a `GyroRange`. 4000 DPS
-        is only available for the ISM330DHCX"""
+        """Adjusts the range of values that the sensor can measure, from 125 Degrees/s to 2000
+        degrees/s. Note that larger ranges will be less accurate. Must be a `GyroRange`."""
         return self._cached_gyro_range
 
     @gyro_range.setter
     def gyro_range(self, value):
+        self._set_gyro_range(value)
+        sleep(0.2)
+
+    def _set_gyro_range(self, value):
         if not GyroRange.is_valid(value):
             raise AttributeError("range must be a `GyroRange`")
-        if value is GyroRange.RANGE_4000_DPS and not isinstance(self, ISM330DHCX):
-            raise AttributeError("4000 DPS is only available for ISM330DHCX")
 
-        if value is GyroRange.RANGE_125_DPS:
-            self._gyro_range_125dps = True
-            self._gyro_range_4000dps = False
-        elif value is GyroRange.RANGE_4000_DPS:
+        # range uses `FS_G` enum
+        if value <= GyroRange.RANGE_2000_DPS:  # pylint: disable=no-member
             self._gyro_range_125dps = False
-            self._gyro_range_4000dps = True
-        else:
-            self._gyro_range_125dps = False
-            self._gyro_range_4000dps = False
             self._gyro_range = value
+        # range uses the `FS_125` bit
+        if value is GyroRange.RANGE_125_DPS:  # pylint: disable=no-member
+            self._gyro_range_125dps = True
 
-        self._cached_gyro_range = value
-        sleep(0.2)  # needed to let new range settle
-
-    # pylint: enable=no-member
+        self._cached_gyro_range = value  # needed to let new range settle
 
     @property
     def accelerometer_data_rate(self):
@@ -368,49 +364,3 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
         if not AccelHPF.is_valid(value):
             raise AttributeError("range must be an `AccelHPF`")
         self._high_pass_filter = value
-
-
-class LSM6DSOX(LSM6DS):  # pylint: disable=too-many-instance-attributes
-
-    """Driver for the LSM6DSOX 6-axis accelerometer and gyroscope.
-
-        :param ~busio.I2C i2c_bus: The I2C bus the LSM6DSOX is connected to.
-        :param address: The I2C slave address of the sensor
-
-    """
-
-    CHIP_ID = _LSM6DS_CHIP_ID
-
-    def __init__(self, i2c_bus, address=_LSM6DS_DEFAULT_ADDRESS):
-        super().__init__(i2c_bus, address)
-        self._i3c_disable = True
-
-
-class LSM6DS33(LSM6DS):  # pylint: disable=too-many-instance-attributes
-
-    """Driver for the LSM6DS33 6-axis accelerometer and gyroscope.
-
-        :param ~busio.I2C i2c_bus: The I2C bus the LSM6DS33 is connected to.
-        :param address: The I2C slave address of the sensor
-
-    """
-
-    CHIP_ID = _LSM6DS33_CHIP_ID
-
-
-class ISM330DHCX(LSM6DS):  # pylint: disable=too-many-instance-attributes
-
-    """Driver for the LSM6DS33 6-axis accelerometer and gyroscope.
-
-        :param ~busio.I2C i2c_bus: The I2C bus the LSM6DS33 is connected to.
-        :param address: The I2C slave address of the sensor
-
-    """
-
-    CHIP_ID = _ISM330DHCX_CHIP_ID
-
-    def __init__(self, i2c_bus, address=_LSM6DS_DEFAULT_ADDRESS):
-        super().__init__(i2c_bus, address)
-
-        # Called DEVICE_CONF in the datasheet, but it recommends setting it
-        self._i3c_disable = True

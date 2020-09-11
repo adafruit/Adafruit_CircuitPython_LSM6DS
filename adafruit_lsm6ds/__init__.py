@@ -139,6 +139,60 @@ AccelHPF.add_values(
     )
 )
 
+
+class TapThreshold(CV):
+    """Options for the accelerometer tap threshold"""
+
+
+TapThreshold.add_values(
+    (
+        ("TAP_THRESHOLD_LOW", 0, 0x01, None),
+        ("TAP_THRESHOLD_MID_LOW", 1, 0x08, None),
+        ("TAP_THRESHOLD_MID", 2, 0x10, None),
+        ("TAP_THRESHOLD_MID_HIGH", 3, 0x18, None),
+        ("TAP_THRESHOLD_HIGH", 4, 0x1F, None),
+    )
+)
+
+
+class TapShockTime(CV):
+    """Options for the accelerometer tap schock time"""
+
+
+TapShockTime.add_values(
+    (
+        ("TAP_SHOCK_TIME_LOW", 0, 0x00, None),
+        ("TAP_SHOCK_TIME_MID_LOW", 1, 0x01, None),
+        ("TAP_SHOCK_TIME_MID_HIGH", 2, 0x02, None),
+        ("TAP_SHOCK_TIME_HIGH", 3, 0x03, None),
+    )
+)
+
+class TapQuietTime(CV):
+    """Options for the accelerometer tap quiet time"""
+
+
+TapQuietTime.add_values(
+    (
+        ("TAP_QUIET_TIME_LOW", 0, 0x00, None),
+        ("TAP_QUIET_TIME_MID_LOW", 1, 0x01, None),
+        ("TAP_QUIET_TIME_MID_HIGH", 2, 0x02, None),
+        ("TAP_QUIET_TIME_HIGH", 3, 0x03, None),
+    )
+)
+
+
+class TapIntPin(CV):
+    """Options for the accelerometer tap int pin"""
+
+
+TapIntPin.add_values(
+    (
+        ("INT1_PIN", 0, 0x00, None),
+        ("INT2_PIN", 1, 0x01, None),
+    )
+)
+
 LSM6DS_DEFAULT_ADDRESS = const(0x6A)
 
 LSM6DS_CHIP_ID = const(0x6C)
@@ -155,6 +209,10 @@ _LSM6DS_OUTX_L_G = const(0x22)
 _LSM6DS_OUTX_L_A = const(0x28)
 _LSM6DS_STEP_COUNTER = const(0x4B)
 _LSM6DS_TAP_CFG = const(0x58)
+_LSM6DS_TAP_THS_6D = const(0x59)
+_LSM6DS_INT_DUR2 = const(0x5A)
+_LSM6DS_MD1_CFG = const(0x5E)
+_LSM6DS_MD2_CFG = const(0x5F)
 
 _MILLI_G_TO_ACCEL = 0.00980665
 
@@ -191,6 +249,14 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
     _pedometer_reset = RWBit(_LSM6DS_CTRL10_C, 1)
     _func_enable = RWBit(_LSM6DS_CTRL10_C, 2)
     _ped_enable = RWBit(_LSM6DS_TAP_CFG, 6)
+    _tap_x_enable = RWBit(_LSM6DS_TAP_CFG, 3)
+    _tap_y_enable = RWBit(_LSM6DS_TAP_CFG, 2)
+    _tap_z_enable = RWBit(_LSM6DS_TAP_CFG, 1)
+    _tap_threshold = RWBits(5, _LSM6DS_TAP_THS_6D, 0)
+    _tap_shock_time = RWBits(2, _LSM6DS_INT_DUR2, 0)
+    _tap_quiet_time = RWBits(2, _LSM6DS_INT_DUR2, 2)
+    _single_tap_on_int1_enable = RWBit(_LSM6DS_MD1_CFG, 6)
+    _single_tap_on_int2_enable = RWBit(_LSM6DS_MD2_CFG, 6)
     pedometer_steps = ROUnaryStruct(_LSM6DS_STEP_COUNTER, "<h")
     """The number of steps detected by the pedometer. You must enable with `pedometer_enable`
     before calling. Use `pedometer_reset` to reset the number of steps"""
@@ -344,6 +410,96 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
         # sleep(.2) # needed to let new range settle
 
     @property
+    def tap_x_enable(self):
+        """ Whether the tap on x axis on the accelerometer is enabled"""
+        return self._tap_x_enable
+
+    # pylint: disable=no-member
+    @tap_x_enable.setter
+    def tap_x_enable(self, enable):
+        self._tap_x_enable = enable
+        #sleep(0.2)  # needed to let enable/disable settle
+
+    @property
+    def tap_y_enable(self):
+        """ Whether the tap on y axis on the accelerometer is enabled"""
+        return self._tap_y_enable
+
+    # pylint: disable=no-member
+    @tap_y_enable.setter
+    def tap_y_enable(self, enable):
+        self._tap_y_enable = enable
+        #sleep(0.2)  # needed to let enable/disable settle
+
+    @property
+    def tap_z_enable(self):
+        """ Whether the tap on z axis on the accelerometer is enabled"""
+        return self._tap_z_enable
+
+    # pylint: disable=no-member
+    @tap_z_enable.setter
+    def tap_z_enable(self, enable):
+        self._tap_z_enable = enable
+        #sleep(0.2)  # needed to let enable/disable settle
+
+    @property
+    def tap_threshold(self):
+        """ Current value for the tap threshold on the accelerometer"""
+        return self._tap_threshold
+    # pylint: disable=no-member
+
+    @tap_threshold.setter
+    def tap_threshold(self, value):
+        if not TapThreshold.is_valid(value):
+            raise AttributeError("tap threshold must be a `TapThreshold`")
+        self._tap_threshold = value
+        #sleep(.2) # needed to let new threshold settle
+
+    @property
+    def tap_quiet_time(self):
+        """ Current value for the tap quiet time on the accelerometer"""
+        return self._tap_quiet_time
+
+    @tap_quiet_time.setter
+    def tap_quiet_time(self, value):
+        if not TapQuietTime.is_valid(value):
+            raise AttributeError("tap threshold must be a `TapQuietTime`")
+
+        self._tap_quiet_time = value
+        #sleep(.2) # needed to let new shock time settle
+
+    @property
+    def tap_shock_time(self):
+        """ Current value for the tap shock time on the accelerometer"""
+        return self._tap_shock_time
+
+    @tap_shock_time.setter
+    def tap_shock_time(self, value):
+        if not TapShockTime.is_valid(value):
+            raise AttributeError("tap threshold must be a `TapShockTime`")
+
+        self._tap_shock_time = value
+        #sleep(.2) # needed to let new shock time settle
+
+    @property
+    def single_tap_on_int1_enable(self):
+        """ Whether the single tap on int1 on the accelerometer is enabled"""
+        return self._single_tap_on_int1_enable
+
+    @single_tap_on_int1_enable.setter
+    def single_tap_on_int1_enable(self, enable):
+        self._single_tap_on_int1_enable = enable
+
+    @property
+    def single_tap_on_int2_enable(self):
+        """ Whether the single tap on int2 on the accelerometer is enabled"""
+        return self._single_tap_on_int2_enable
+
+    @single_tap_on_int2_enable.setter
+    def single_tap_on_int2_enable(self, enable):
+        self._single_tap_on_int2_enable = enable
+
+    @property
     def pedometer_enable(self):
         """ Whether the pedometer function on the accelerometer is enabled"""
         return self._ped_enable and self._func_enable
@@ -353,6 +509,37 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
         self._ped_enable = enable
         self._func_enable = enable
         self._pedometer_reset = enable
+
+    @property
+    def is_single_tap_detection_enable(self):
+        """ Whether the single tap function on the accelerometer is enabled"""
+        return (self._tap_x_enable or self._tap_y_enable or self._tap_z_enable) and (self._single_tap_on_int1_enable or self._single_tap_on_int2_enable)# pylint: disable=line-too-long
+
+    def single_tap_detection_enable(self, enable, axis_enable='xyz', int_pin=TapIntPin.INT1_PIN, threshold=TapThreshold.TAP_THRESHOLD_MID_LOW, data_rate=Rate.RATE_1_66K_HZ, accel_range=0, shock_time=TapShockTime.TAP_SHOCK_TIME_MID_HIGH, quiet_time=TapQuietTime.TAP_QUIET_TIME_MID_LOW):
+        """Enable or disable the single tap detection on the accelerometer"""
+        #Set_X_ODR(416.0f)
+        self.accelerometer_data_rate = data_rate
+        #Set_X_FS(2.0f)
+        self.accelerometer_range = accel_range
+        #LSM6DS3_ACC_GYRO_W_TAP_X_EN
+        self.tap_x_enable = 'x' in axis_enable
+        #LSM6DS3_ACC_GYRO_W_TAP_Y_EN
+        self.tap_y_enable = 'y' in axis_enable
+        #LSM6DS3_ACC_GYRO_W_TAP_Z_EN
+        self.tap_z_enable = 'z' in axis_enable
+        #Set_Tap_Threshold
+        self.tap_threshold = threshold
+        #Set_Tap_Shock_Time
+        self.tap_shock_time = shock_time
+        #Set_Tap_Quiet_Time
+        self.tap_quiet_time = quiet_time
+        if not TapIntPin.is_valid(int_pin):
+            raise AttributeError("tap int pin must be a `TapIntPin`")
+
+        if int_pin == TapIntPin.INT1_PIN:
+            self.single_tap_on_int1_enable = enable
+        else:
+            self.single_tap_on_int2_enable = enable
 
     @property
     def high_pass_filter(self):

@@ -174,7 +174,7 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
     # Structs
     _raw_accel_data = Struct(_LSM6DS_OUTX_L_A, "<hhh")
     _raw_gyro_data = Struct(_LSM6DS_OUTX_L_G, "<hhh")
-    _raw_temp_data = Struct(_LSM6DS_OUT_TEMP_L, "<hh")
+    _raw_temp_data = Struct(_LSM6DS_OUT_TEMP_L, "<bb")
       
     # RWBits:
 

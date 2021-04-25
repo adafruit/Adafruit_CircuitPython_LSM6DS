@@ -163,8 +163,8 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
 
     """Driver for the LSM6DSOX 6-axis accelerometer and gyroscope.
 
-        :param ~busio.I2C i2c_bus: The I2C bus the LSM6DSOX is connected to.
-        :param address: The I2C slave address of the sensor
+    :param ~busio.I2C i2c_bus: The I2C bus the LSM6DSOX is connected to.
+    :param address: The I2C slave address of the sensor
 
     """
 
@@ -175,12 +175,11 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
     _raw_accel_data = Struct(_LSM6DS_OUTX_L_A, "<hhh")
     _raw_gyro_data = Struct(_LSM6DS_OUTX_L_G, "<hhh")
     _raw_temp_data = Struct(_LSM6DS_OUT_TEMP_L, "<bb")
-      
+
     # RWBits:
 
     _accel_range = RWBits(2, _LSM6DS_CTRL1_XL, 2)
     _accel_data_rate = RWBits(4, _LSM6DS_CTRL1_XL, 4)
-
 
     _gyro_data_rate = RWBits(4, _LSM6DS_CTRL2_G, 4)
     _gyro_range = RWBits(2, _LSM6DS_CTRL2_G, 2)
@@ -254,12 +253,12 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
     @property
     def temperature(self):
         raw_temp_data = self._raw_temp_data
-        
+
         temperature_raw = raw_temp_data[0] | (raw_temp_data[1] << 8)
         temperature_c = temperature_raw / 16.0 + 25.0
-        
+
         return temperature_c
-        
+
     @property
     def acceleration(self):
         """The x, y, z acceleration values returned in a 3-tuple and are in m / s ^ 2."""

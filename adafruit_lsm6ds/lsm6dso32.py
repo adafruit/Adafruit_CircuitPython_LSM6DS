@@ -12,8 +12,7 @@ class LSM6DSO32(LSM6DS):  # pylint: disable=too-many-instance-attributes
     """Driver for the LSM6DSO32 6-axis accelerometer and gyroscope.
 
     :param ~busio.I2C i2c_bus: The I2C bus the LSM6DSO32 is connected to.
-    :param address: The I2C slave address of the sensor
-
+    :param address: The I2C address of the sensor
     """
 
     CHIP_ID = LSM6DS_CHIP_ID

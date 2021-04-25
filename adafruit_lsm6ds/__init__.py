@@ -252,6 +252,7 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
 
     @property
     def temperature(self):
+        """The temperature, in degrees Celsius."""
         raw_temp_data = self._raw_temp_data
 
         temperature_raw = raw_temp_data[0] | (raw_temp_data[1] << 8)

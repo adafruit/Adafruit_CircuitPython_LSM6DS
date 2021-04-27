@@ -36,30 +36,40 @@ Implementation Notes
 
 **Hardware:**
 
-* Adafruit LSM6DSOX Breakout <https://www.adafruit.com/products/4438>
+* Adafruit `LSM6DSOX 6 DoF Accelerometer and Gyroscope
+  <https://www.adafruit.com/product/4438>`_
 
-* Adafruit ISM330DHCX Breakout <https://www.adafruit.com/product/4502>
+* Adafruit `ISM330DHCX - 6 DoF IMU - Accelerometer and Gyroscope
+  <https://www.adafruit.com/product/4502>`_
 
-* Adafruit LSM6DSO32  Breakout <https://www.adafruit.com/product/4692>
+* Adafruit `LSM6DSO32 6-DoF Accelerometer and Gyroscope
+  <https://www.adafruit.com/product/4692>`_
 
-* Adafruit LSM6DS33 Breakout <https://www.adafruit.com/product/4480>
+* Adafruit `LSM6DS33 6-DoF Accel + Gyro IMU
+  <https://www.adafruit.com/product/4480>`_
 
-* Adafruit ISM330DHCX + LIS3MDL FEATHERWING <https://www.adafruit.com/product/4569>
+* Adafruit `ISM330DHCX + LIS3MDL FeatherWing - High Precision 9-DoF IMU
+  <https://www.adafruit.com/product/4569>`_
 
-* Adafruit LSM6DSOX + LIS3MDL - 9 DOF IMU Breakout <https://www.adafruit.com/product/4517>
+* Adafruit `LSM6DSOX + LIS3MDL - Precision 9 DoF IMU
+  <https://www.adafruit.com/product/4517>`_
 
-* Adafruit LSM6DS33 + LIS3MDL - 9 DOF IMU Breakout <https://www.adafruit.com/product/4485>
+* Adafruit `LSM6DS33 + LIS3MDL - 9 DoF IMU with Accel / Gyro / Mag
+  <https://www.adafruit.com/product/4485>`_
 
-* Adafruit LSM6DSOX + LIS3MDL  9 DOF IMU FeatherWing <https://www.adafruit.com/product/4565>
+* Adafruit `LSM6DSOX + LIS3MDL FeatherWing - Precision 9-DoF IMU
+  <https://www.adafruit.com/product/4565>`_
+
 
 **Software and Dependencies:**
 
 * Adafruit CircuitPython firmware for the supported boards:
-  https://github.com/adafruit/circuitpython/releases
+  https://circuitpython.org/downloads
+* Adafruit's Bus Device library:
+  https://github.com/adafruit/Adafruit_CircuitPython_BusDevice
+* Adafruit's Register library:
+  https://github.com/adafruit/Adafruit_CircuitPython_Register
 
-
-* Adafruit's Bus Device library: https://github.com/adafruit/Adafruit_CircuitPython_BusDevice
-* Adafruit's Register library: https://github.com/adafruit/Adafruit_CircuitPython_Register
 """
 
 __version__ = "0.0.0-auto.0"
@@ -92,7 +102,7 @@ class CV:
 
     @classmethod
     def is_valid(cls, value):
-        "Returns true if the given value is a member of the CV"
+        """Returns true if the given value is a member of the CV"""
         return value in cls.string
 
 
@@ -164,7 +174,8 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
     """Driver for the LSM6DSOX 6-axis accelerometer and gyroscope.
 
     :param ~busio.I2C i2c_bus: The I2C bus the LSM6DSOX is connected to.
-    :param address: The I2C address of the sensor
+    :param int address: TThe I2C device address. Defaults to :const:`0x6A`
+
     """
 
     # ROUnaryStructs:
@@ -173,8 +184,6 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
     # Structs
     _raw_accel_data = Struct(_LSM6DS_OUTX_L_A, "<hhh")
     _raw_gyro_data = Struct(_LSM6DS_OUTX_L_G, "<hhh")
-    _raw_temp_data = Struct(_LSM6DS_OUT_TEMP_L, "<bb")
-
     # RWBits:
 
     _accel_range = RWBits(2, _LSM6DS_CTRL1_XL, 2)
@@ -250,16 +259,6 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
         )
 
     @property
-    def temperature(self):
-        """The temperature, in degrees Celsius."""
-        raw_temp_data = self._raw_temp_data
-
-        temperature_raw = raw_temp_data[0] | (raw_temp_data[1] << 8)
-        temperature_c = temperature_raw / 16.0 + 25.0
-
-        return temperature_c
-
-    @property
     def acceleration(self):
         """The x, y, z acceleration values returned in a 3-tuple and are in m / s ^ 2."""
         raw_accel_data = self._raw_accel_data
@@ -290,7 +289,7 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
     @property
     def accelerometer_range(self):
         """Adjusts the range of values that the sensor can measure, from +/- 2G to +/-16G
-        Note that larger ranges will be less accurate. Must be an `AccelRange`"""
+        Note that larger ranges will be less accurate. Must be an ``AccelRange``"""
         return self._cached_accel_range
 
     # pylint: disable=no-member
@@ -305,7 +304,7 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
     @property
     def gyro_range(self):
         """Adjusts the range of values that the sensor can measure, from 125 Degrees/s to 2000
-        degrees/s. Note that larger ranges will be less accurate. Must be a `GyroRange`."""
+        degrees/s. Note that larger ranges will be less accurate. Must be a ``GyroRange``."""
         return self._cached_gyro_range
 
     @gyro_range.setter
@@ -329,7 +328,7 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
 
     @property
     def accelerometer_data_rate(self):
-        """Select the rate at which the accelerometer takes measurements. Must be a `Rate`"""
+        """Select the rate at which the accelerometer takes measurements. Must be a ``Rate``"""
         return self._accel_data_rate
 
     @accelerometer_data_rate.setter
@@ -343,7 +342,7 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
 
     @property
     def gyro_data_rate(self):
-        """Select the rate at which the gyro takes measurements. Must be a `Rate`"""
+        """Select the rate at which the gyro takes measurements. Must be a ``Rate``"""
         return self._gyro_data_rate
 
     @gyro_data_rate.setter

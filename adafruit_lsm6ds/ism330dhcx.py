@@ -2,7 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 """
-This module provides the ISM330DHCX subclass of LSM6DS for using ISM330DHCX sensors.
+This module provides the `adafruit_lsm6ds.ism330dhcx` subclass of LSM6DS sensors
+==================================================================================
 """
 from time import sleep
 from . import LSM6DS, LSM6DS_DEFAULT_ADDRESS, GyroRange, RWBit, const
@@ -12,10 +13,37 @@ _LSM6DS_CTRL2_G = const(0x11)
 
 class ISM330DHCX(LSM6DS):  # pylint: disable=too-many-instance-attributes
 
-    """Driver for the LSM6DS33 6-axis accelerometer and gyroscope.
+    """Driver for the ISM330DHCX 6-axis accelerometer and gyroscope.
 
-    :param ~busio.I2C i2c_bus: The I2C bus the LSM6DS33 is connected to.
-    :param address: The I2C address of the sensor
+    :param ~busio.I2C i2c_bus: The I2C bus the device is connected to.
+    :param int address: The I2C device address. Defaults to :const:`0x6A`
+
+
+    **Quickstart: Importing and using the device**
+
+        Here is an example of using the :class:`ISM330DHCX` class.
+        First you will need to import the libraries to use the sensor
+
+        .. code-block:: python
+
+            import board
+            from adafruit_lsm6ds.ism330dhcx import ISM330DHCX
+
+        Once this is done you can define your `board.I2C` object and define your sensor object
+
+        .. code-block:: python
+
+            i2c = board.I2C()  # uses board.SCL and board.SDA
+            sensor = ISM330DHCX(i2c)
+
+        Now you have access to the :attr:`acceleration` and :attr:`gyro`: attributes
+
+        .. code-block:: python
+
+            acc_x, acc_y, acc_z = sensor.acceleration
+            gyro_x, gyro_z, gyro_z = sensor.gyro
+
+
     """
 
     CHIP_ID = 0x6B
@@ -40,7 +68,7 @@ class ISM330DHCX(LSM6DS):  # pylint: disable=too-many-instance-attributes
     @property
     def gyro_range(self):
         """Adjusts the range of values that the sensor can measure, from 125 Degrees/s to 4000
-        degrees/s. Note that larger ranges will be less accurate. Must be a `GyroRange`. 4000 DPS
+        degrees/s. Note that larger ranges will be less accurate. Must be a ``GyroRange``. 4000 DPS
         is only available for the ISM330DHCX"""
         return self._cached_gyro_range
 

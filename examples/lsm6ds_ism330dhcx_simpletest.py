@@ -3,11 +3,9 @@
 # SPDX-License-Identifier: MIT
 import time
 import board
-import busio
 from adafruit_lsm6ds.ism330dhcx import ISM330DHCX
 
-i2c = busio.I2C(board.SCL, board.SDA)
-
+i2c = board.I2C()  # uses board.SCL and board.SDA
 sensor = ISM330DHCX(i2c)
 
 while True:

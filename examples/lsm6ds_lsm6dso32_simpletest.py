@@ -3,11 +3,11 @@
 # SPDX-License-Identifier: MIT
 import time
 import board
-import busio
 from adafruit_lsm6ds.lsm6dso32 import LSM6DSO32
 
-i2c = busio.I2C(board.SCL, board.SDA)
+i2c = board.I2C()  # uses board.SCL and board.SDA
 sensor = LSM6DSO32(i2c)
+
 while True:
     print("Acceleration: X:%.2f, Y: %.2f, Z: %.2f m/s^2" % (sensor.acceleration))
     print("Gyro X:%.2f, Y: %.2f, Z: %.2f radians/s" % (sensor.gyro))

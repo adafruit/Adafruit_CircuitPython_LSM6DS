@@ -60,15 +60,13 @@ To install in a virtual environment in your current project:
 
 Usage Example
 =============
-.. code-block:: python
+.. code-block:: python3
 
     import time
     import board
-    import busio
     from adafruit_lsm6ds.lsm6dsox import LSM6DSOX
 
-    i2c = busio.I2C(board.SCL, board.SDA)
-
+    i2c = board.I2C()  # uses board.SCL and board.SDA
     sox = LSM6DSOX(i2c)
 
     while True:

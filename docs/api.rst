@@ -6,3 +6,18 @@
 
 .. automodule:: adafruit_lsm6ds
    :members:
+   :exclude-members: CV, AccelRange, GyroRange, AccelHPF, Rate
+   :member-order: bysource
+
+
+.. automodule:: adafruit_lsm6ds.ism330dhcx
+   :members:
+
+.. automodule:: adafruit_lsm6ds.lsm6ds33
+   :members:
+
+.. automodule:: adafruit_lsm6ds.lsm6dso32
+   :members:
+
+.. automodule:: adafruit_lsm6ds.lsm6dsox
+   :members:

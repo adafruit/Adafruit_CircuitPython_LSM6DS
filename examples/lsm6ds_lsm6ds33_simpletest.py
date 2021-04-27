@@ -3,11 +3,9 @@
 # SPDX-License-Identifier: MIT
 import time
 import board
-import busio
 from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
 
-i2c = busio.I2C(board.SCL, board.SDA)
-
+i2c = board.I2C()  # uses board.SCL and board.SDA
 sensor = LSM6DS33(i2c)
 
 while True:

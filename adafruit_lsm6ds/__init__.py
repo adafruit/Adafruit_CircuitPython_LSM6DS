@@ -1,27 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2020 Bryan Siepert for Adafruit Industries
 #
 # SPDX-License-Identifier: MIT
-# The MIT License (MIT)
-#
-# Copyright (c) 2019 Bryan Siepert for Adafruit Industries
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+
 """
 `adafruit_lsm6ds`
 ================================================================================
@@ -29,36 +9,36 @@
 CircuitPython helper library for the LSM6DS family of motion sensors from ST
 
 
-* Author(s): Bryan Siepert
+* Author(s): Bryan Siepert, Jose David M.
 
 Implementation Notes
 --------------------
 
 **Hardware:**
 
-* Adafruit `LSM6DSOX 6 DoF Accelerometer and Gyroscope
-  <https://www.adafruit.com/product/4438>`_
+* `Adafruit LSM6DSOX 6 DoF Accelerometer and Gyroscope
+  <https://www.adafruit.com/product/4438>`_ (Product ID: 4438)
 
-* Adafruit `ISM330DHCX - 6 DoF IMU - Accelerometer and Gyroscope
-  <https://www.adafruit.com/product/4502>`_
+* `Adafruit ISM330DHCX - 6 DoF IMU - Accelerometer and Gyroscope
+  <https://www.adafruit.com/product/4502>`_ (Product ID: 4502)
 
-* Adafruit `LSM6DSO32 6-DoF Accelerometer and Gyroscope
-  <https://www.adafruit.com/product/4692>`_
+* `Adafruit LSM6DSO32 6-DoF Accelerometer and Gyroscope
+  <https://www.adafruit.com/product/4692>`_ (Product ID: 4692)
 
-* Adafruit `LSM6DS33 6-DoF Accel + Gyro IMU
-  <https://www.adafruit.com/product/4480>`_
+* `Adafruit LSM6DS33 6-DoF Accel + Gyro IMU
+  <https://www.adafruit.com/product/4480>`_ (Product ID: 4480)
 
-* Adafruit `ISM330DHCX + LIS3MDL FeatherWing - High Precision 9-DoF IMU
-  <https://www.adafruit.com/product/4569>`_
+* `Adafruit ISM330DHCX + LIS3MDL FeatherWing - High Precision 9-DoF IMU
+  <https://www.adafruit.com/product/4569>`_ (Product ID: 4569)
 
-* Adafruit `LSM6DSOX + LIS3MDL - Precision 9 DoF IMU
-  <https://www.adafruit.com/product/4517>`_
+* `Adafruit LSM6DSOX + LIS3MDL - Precision 9 DoF IMU
+  <https://www.adafruit.com/product/4517>`_ (Product ID: 4517)
 
-* Adafruit `LSM6DS33 + LIS3MDL - 9 DoF IMU with Accel / Gyro / Mag
-  <https://www.adafruit.com/product/4485>`_
+* `Adafruit LSM6DS33 + LIS3MDL - 9 DoF IMU with Accel / Gyro / Mag
+  <https://www.adafruit.com/product/4485>`_ (Product ID: 4485)
 
-* Adafruit `LSM6DSOX + LIS3MDL FeatherWing - Precision 9-DoF IMU
-  <https://www.adafruit.com/product/4565>`_
+* `Adafruit LSM6DSOX + LIS3MDL FeatherWing - Precision 9-DoF IMU
+  <https://www.adafruit.com/product/4565>`_ (Product ID: 4565)
 
 
 **Software and Dependencies:**
@@ -184,8 +164,9 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
     # Structs
     _raw_accel_data = Struct(_LSM6DS_OUTX_L_A, "<hhh")
     _raw_gyro_data = Struct(_LSM6DS_OUTX_L_G, "<hhh")
-    # RWBits:
+    _raw_temp_data = Struct(_LSM6DS_OUT_TEMP_L, "<h")
 
+    # RWBits:
     _accel_range = RWBits(2, _LSM6DS_CTRL1_XL, 2)
     _accel_data_rate = RWBits(4, _LSM6DS_CTRL1_XL, 4)
 
@@ -374,3 +355,18 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
         if not AccelHPF.is_valid(value):
             raise AttributeError("range must be an `AccelHPF`")
         self._high_pass_filter = value
+
+    @property
+    def temperature(self):
+        """Temperature in Celsius"""
+        # Data from Datasheet Table 4.3
+        # Temp range -40 to 85 Celsius
+        # T_ADC_RES = ADC Res 16 bit
+        # Stabilization time 500 μs
+
+        temp = self._raw_temp_data[0]
+
+        if temp > 0x550:
+            return (temp - 2 ** 13) * 0.0625
+
+        return temp * 0.0625

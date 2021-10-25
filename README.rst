@@ -75,6 +75,11 @@ Usage Example
         print("")
         time.sleep(0.5)
 
+Documentation
+=============
+
+API documentation for this library can be found on `Read the Docs <https://circuitpython.readthedocs.io/projects/lsm6dsox/en/latest/>`_.
+
 Contributing
 ============
 

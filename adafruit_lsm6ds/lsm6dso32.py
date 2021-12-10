@@ -7,6 +7,12 @@ This module provides the `adafruit_lsm6ds.lsm6dso32` subclass of LSM6DS sensors
 """
 from . import LSM6DS, LSM6DS_CHIP_ID, LSM6DS_DEFAULT_ADDRESS, AccelRange
 
+try:
+    import typing  # pylint: disable=unused-import
+    from busio import I2C
+except ImportError:
+    pass
+
 
 class LSM6DSO32(LSM6DS):  # pylint: disable=too-many-instance-attributes
 
@@ -45,12 +51,12 @@ class LSM6DSO32(LSM6DS):  # pylint: disable=too-many-instance-attributes
 
     CHIP_ID = LSM6DS_CHIP_ID
 
-    def __init__(self, i2c_bus, address=LSM6DS_DEFAULT_ADDRESS):
+    def __init__(self, i2c_bus: I2C, address: int = LSM6DS_DEFAULT_ADDRESS) -> None:
         super().__init__(i2c_bus, address)
         self._i3c_disable = True
         self.accelerometer_range = AccelRange.RANGE_8G  # pylint:disable=no-member
 
-    def _add_accel_ranges(self):
+    def _add_accel_ranges(self) -> None:
         AccelRange.add_values(
             (
                 ("RANGE_4G", 0, 4, 0.122),

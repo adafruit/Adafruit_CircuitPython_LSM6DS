@@ -64,12 +64,18 @@ from adafruit_register.i2c_struct import ROUnaryStruct, Struct
 from adafruit_register.i2c_bits import RWBits
 from adafruit_register.i2c_bit import RWBit
 
+try:
+    from typing import Tuple, Optional
+    from busio import I2C
+except ImportError:
+    pass
+
 
 class CV:
     """struct helper"""
 
     @classmethod
-    def add_values(cls, value_tuples):
+    def add_values(cls, value_tuples: Tuple[str, int, float, Optional[float]]) -> None:
         "creates CV entires"
         cls.string = {}
         cls.lsb = {}
@@ -81,7 +87,7 @@ class CV:
             cls.lsb[value] = lsb
 
     @classmethod
-    def is_valid(cls, value):
+    def is_valid(cls, value: int) -> bool:
         """Returns true if the given value is a member of the CV"""
         return value in cls.string
 
@@ -187,7 +193,7 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
     before calling. Use `pedometer_reset` to reset the number of steps"""
     CHIP_ID = None
 
-    def __init__(self, i2c_bus, address=LSM6DS_DEFAULT_ADDRESS):
+    def __init__(self, i2c_bus: I2C, address: int = LSM6DS_DEFAULT_ADDRESS) -> None:
         self._cached_accel_range = None
         self._cached_gyro_range = None
 
@@ -210,14 +216,14 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
         self.accelerometer_range = AccelRange.RANGE_4G  # pylint: disable=no-member
         self.gyro_range = GyroRange.RANGE_250_DPS  # pylint: disable=no-member
 
-    def reset(self):
+    def reset(self) -> None:
         "Resets the sensor's configuration into an initial state"
         self._sw_reset = True
         while self._sw_reset:
             sleep(0.001)
 
     @staticmethod
-    def _add_gyro_ranges():
+    def _add_gyro_ranges() -> None:
         GyroRange.add_values(
             (
                 ("RANGE_125_DPS", 125, 125, 4.375),
@@ -229,7 +235,7 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
         )
 
     @staticmethod
-    def _add_accel_ranges():
+    def _add_accel_ranges() -> None:
         AccelRange.add_values(
             (
                 ("RANGE_2G", 0, 2, 0.061),
@@ -240,7 +246,7 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
         )
 
     @property
-    def acceleration(self):
+    def acceleration(self) -> Tuple[float, float, float]:
         """The x, y, z acceleration values returned in a 3-tuple and are in m / s ^ 2."""
         raw_accel_data = self._raw_accel_data
 
@@ -251,31 +257,31 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
         return (x, y, z)
 
     @property
-    def gyro(self):
+    def gyro(self) -> Tuple[float, float, float]:
         """The x, y, z angular velocity values returned in a 3-tuple and are in radians / second"""
         raw_gyro_data = self._raw_gyro_data
         x, y, z = [radians(self._scale_gyro_data(i)) for i in raw_gyro_data]
         return (x, y, z)
 
-    def _scale_xl_data(self, raw_measurement):
+    def _scale_xl_data(self, raw_measurement: int) -> float:
         return (
             raw_measurement
             * AccelRange.lsb[self._cached_accel_range]
             * _MILLI_G_TO_ACCEL
         )
 
-    def _scale_gyro_data(self, raw_measurement):
+    def _scale_gyro_data(self, raw_measurement: int) -> float:
         return raw_measurement * GyroRange.lsb[self._cached_gyro_range] / 1000
 
     @property
-    def accelerometer_range(self):
+    def accelerometer_range(self) -> int:
         """Adjusts the range of values that the sensor can measure, from +/- 2G to +/-16G
         Note that larger ranges will be less accurate. Must be an ``AccelRange``"""
         return self._cached_accel_range
 
     # pylint: disable=no-member
     @accelerometer_range.setter
-    def accelerometer_range(self, value):
+    def accelerometer_range(self, value: int) -> None:
         if not AccelRange.is_valid(value):
             raise AttributeError("range must be an `AccelRange`")
         self._accel_range = value
@@ -283,17 +289,17 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
         sleep(0.2)  # needed to let new range settle
 
     @property
-    def gyro_range(self):
+    def gyro_range(self) -> int:
         """Adjusts the range of values that the sensor can measure, from 125 Degrees/s to 2000
         degrees/s. Note that larger ranges will be less accurate. Must be a ``GyroRange``."""
         return self._cached_gyro_range
 
     @gyro_range.setter
-    def gyro_range(self, value):
+    def gyro_range(self, value: int) -> None:
         self._set_gyro_range(value)
         sleep(0.2)
 
-    def _set_gyro_range(self, value):
+    def _set_gyro_range(self, value: int) -> None:
         if not GyroRange.is_valid(value):
             raise AttributeError("range must be a `GyroRange`")
 
@@ -308,12 +314,12 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
         self._cached_gyro_range = value  # needed to let new range settle
 
     @property
-    def accelerometer_data_rate(self):
+    def accelerometer_data_rate(self) -> int:
         """Select the rate at which the accelerometer takes measurements. Must be a ``Rate``"""
         return self._accel_data_rate
 
     @accelerometer_data_rate.setter
-    def accelerometer_data_rate(self, value):
+    def accelerometer_data_rate(self, value: int) -> None:
 
         if not Rate.is_valid(value):
             raise AttributeError("accelerometer_data_rate must be a `Rate`")
@@ -322,12 +328,12 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
         # sleep(.2) # needed to let new range settle
 
     @property
-    def gyro_data_rate(self):
+    def gyro_data_rate(self) -> int:
         """Select the rate at which the gyro takes measurements. Must be a ``Rate``"""
         return self._gyro_data_rate
 
     @gyro_data_rate.setter
-    def gyro_data_rate(self, value):
+    def gyro_data_rate(self, value: int) -> None:
         if not Rate.is_valid(value):
             raise AttributeError("gyro_data_rate must be a `Rate`")
 
@@ -335,29 +341,29 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
         # sleep(.2) # needed to let new range settle
 
     @property
-    def pedometer_enable(self):
+    def pedometer_enable(self) -> bool:
         """ Whether the pedometer function on the accelerometer is enabled"""
         return self._ped_enable and self._func_enable
 
     @pedometer_enable.setter
-    def pedometer_enable(self, enable):
+    def pedometer_enable(self, enable: bool) -> None:
         self._ped_enable = enable
         self._func_enable = enable
         self._pedometer_reset = enable
 
     @property
-    def high_pass_filter(self):
+    def high_pass_filter(self) -> int:
         """The high pass filter applied to accelerometer data"""
         return self._high_pass_filter
 
     @high_pass_filter.setter
-    def high_pass_filter(self, value):
+    def high_pass_filter(self, value: int) -> None:
         if not AccelHPF.is_valid(value):
             raise AttributeError("range must be an `AccelHPF`")
         self._high_pass_filter = value
 
     @property
-    def temperature(self):
+    def temperature(self) -> float:
         """Temperature in Celsius"""
         # Data from Datasheet Table 4.3
         # Temp range -40 to 85 Celsius

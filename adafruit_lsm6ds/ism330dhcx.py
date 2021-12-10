@@ -8,6 +8,12 @@ This module provides the `adafruit_lsm6ds.ism330dhcx` subclass of LSM6DS sensors
 from time import sleep
 from . import LSM6DS, LSM6DS_DEFAULT_ADDRESS, GyroRange, RWBit, const
 
+try:
+    import typing # pylint: disable=unused-import
+    from busio import I2C
+except ImportError:
+    pass
+
 _LSM6DS_CTRL2_G = const(0x11)
 
 
@@ -49,7 +55,7 @@ class ISM330DHCX(LSM6DS):  # pylint: disable=too-many-instance-attributes
     CHIP_ID = 0x6B
     _gyro_range_4000dps = RWBit(_LSM6DS_CTRL2_G, 0)
 
-    def __init__(self, i2c_bus, address=LSM6DS_DEFAULT_ADDRESS):
+    def __init__(self, i2c_bus: I2C, address: int = LSM6DS_DEFAULT_ADDRESS) -> None:
         GyroRange.add_values(
             (
                 ("RANGE_125_DPS", 125, 125, 4.375),
@@ -66,14 +72,14 @@ class ISM330DHCX(LSM6DS):  # pylint: disable=too-many-instance-attributes
         self._i3c_disable = True
 
     @property
-    def gyro_range(self):
+    def gyro_range(self) -> int:
         """Adjusts the range of values that the sensor can measure, from 125 Degrees/s to 4000
         degrees/s. Note that larger ranges will be less accurate. Must be a ``GyroRange``. 4000 DPS
         is only available for the ISM330DHCX"""
         return self._cached_gyro_range
 
     @gyro_range.setter
-    def gyro_range(self, value):
+    def gyro_range(self, value: int) -> None:
         super()._set_gyro_range(value)
 
         # range uses the `FS_4000` bit

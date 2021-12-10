@@ -8,7 +8,7 @@ This module provides the `adafruit_lsm6ds.lsm6dso32` subclass of LSM6DS sensors
 from . import LSM6DS, LSM6DS_CHIP_ID, LSM6DS_DEFAULT_ADDRESS, AccelRange
 
 try:
-    import typing # pylint: disable=unused-import
+    import typing  # pylint: disable=unused-import
     from busio import I2C
 except ImportError:
     pass

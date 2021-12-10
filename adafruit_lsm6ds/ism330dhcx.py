@@ -9,7 +9,7 @@ from time import sleep
 from . import LSM6DS, LSM6DS_DEFAULT_ADDRESS, GyroRange, RWBit, const
 
 try:
-    import typing # pylint: disable=unused-import
+    import typing  # pylint: disable=unused-import
     from busio import I2C
 except ImportError:
     pass

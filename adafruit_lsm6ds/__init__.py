@@ -190,7 +190,7 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
     _ped_enable = RWBit(_LSM6DS_TAP_CFG, 6)
     pedometer_steps = ROUnaryStruct(_LSM6DS_STEP_COUNTER, "<h")
     """The number of steps detected by the pedometer. You must enable with `pedometer_enable`
-    before calling. Use `pedometer_reset` to reset the number of steps"""
+    before calling. Use ``pedometer_reset`` to reset the number of steps"""
     CHIP_ID = None
 
     def __init__(self, i2c_bus: I2C, address: int = LSM6DS_DEFAULT_ADDRESS) -> None:

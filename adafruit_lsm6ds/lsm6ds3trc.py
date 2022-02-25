@@ -9,6 +9,7 @@ from . import LSM6DS, RWBit, const
 
 _LSM6DS_CTRL10_C = const(0x19)
 
+
 class LSM6DS3TRC(LSM6DS):  # pylint: disable=too-many-instance-attributes
 
     """Driver for the LSM6DS3TR-C 6-axis accelerometer and gyroscope.

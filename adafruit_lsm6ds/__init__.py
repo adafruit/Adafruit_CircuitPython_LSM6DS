@@ -55,6 +55,7 @@ Implementation Notes
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_LSM6DS.git"
 
+import struct
 from time import sleep
 from math import radians
 from micropython import const
@@ -62,7 +63,7 @@ from adafruit_bus_device import i2c_device
 
 from adafruit_register.i2c_struct import ROUnaryStruct, Struct
 from adafruit_register.i2c_bits import RWBits
-from adafruit_register.i2c_bit import RWBit
+from adafruit_register.i2c_bit import RWBit, ROBit
 
 try:
     from typing import Tuple, Optional
@@ -139,6 +140,7 @@ LSM6DS_DEFAULT_ADDRESS = const(0x6A)
 
 LSM6DS_CHIP_ID = const(0x6C)
 
+_LSM6DS_MLC_INT1 = const(0x0D)
 _LSM6DS_WHOAMI = const(0xF)
 _LSM6DS_CTRL1_XL = const(0x10)
 _LSM6DS_CTRL2_G = const(0x11)
@@ -146,13 +148,24 @@ _LSM6DS_CTRL3_C = const(0x12)
 _LSM6DS_CTRL8_XL = const(0x17)
 _LSM6DS_CTRL9_XL = const(0x18)
 _LSM6DS_CTRL10_C = const(0x19)
+_LSM6DS_ALL_INT_SRC = const(0x1A)
 _LSM6DS_OUT_TEMP_L = const(0x20)
 _LSM6DS_OUTX_L_G = const(0x22)
 _LSM6DS_OUTX_L_A = const(0x28)
+_LSM6DS_MLC_STATUS = const(0x38)
 _LSM6DS_STEP_COUNTER = const(0x4B)
+_LSM6DS_TAP_CFG0 = const(0x56)
 _LSM6DS_TAP_CFG = const(0x58)
-
+_LSM6DS_MLC0_SRC = const(0x70)
 _MILLI_G_TO_ACCEL = 0.00980665
+
+
+_LSM6DS_EMB_FUNC_EN_A = const(0x04)
+_LSM6DS_EMB_FUNC_EN_B = const(0x05)
+_LSM6DS_FUNC_CFG_ACCESS = const(0x01)
+_LSM6DS_FUNC_CFG_BANK_USER = const(0)
+_LSM6DS_FUNC_CFG_BANK_HUB = const(1)
+_LSM6DS_FUNC_CFG_BANK_EMBED = const(2)
 
 
 class LSM6DS:  # pylint: disable=too-many-instance-attributes
@@ -171,7 +184,10 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
     _raw_accel_data = Struct(_LSM6DS_OUTX_L_A, "<hhh")
     _raw_gyro_data = Struct(_LSM6DS_OUTX_L_G, "<hhh")
     _raw_temp_data = Struct(_LSM6DS_OUT_TEMP_L, "<h")
-
+    _emb_func_en_a = Struct(_LSM6DS_EMB_FUNC_EN_A, "<b")
+    _emb_func_en_b = Struct(_LSM6DS_EMB_FUNC_EN_B, "<b")
+    _mlc0_src = Struct(_LSM6DS_MLC0_SRC, "<b")
+    # _all_int = Struct(_LSM6DS_ALL_INT_SRC, "<bbbbbbbb")
     # RWBits:
     _accel_range = RWBits(2, _LSM6DS_CTRL1_XL, 2)
     _accel_data_rate = RWBits(4, _LSM6DS_CTRL1_XL, 4)
@@ -187,13 +203,22 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
     _i3c_disable = RWBit(_LSM6DS_CTRL9_XL, 1)
     _pedometer_reset = RWBit(_LSM6DS_CTRL10_C, 1)
     _func_enable = RWBit(_LSM6DS_CTRL10_C, 2)
+    _mem_bank = RWBit(_LSM6DS_FUNC_CFG_ACCESS, 7)
+    _mlc_status = ROBit(_LSM6DS_MLC_STATUS, 0)
+    _i3c_disable = RWBit(_LSM6DS_CTRL9_XL, 0)
+    _block_data_enable = RWBit(_LSM6DS_CTRL3_C, 4)
+    _route_int1 = RWBit(_LSM6DS_MLC_INT1, 0)
+    _tap_latch = RWBit(_LSM6DS_TAP_CFG0, 0)
+    _tap_clear = RWBit(_LSM6DS_TAP_CFG0, 6)
     _ped_enable = RWBit(_LSM6DS_TAP_CFG, 6)
     pedometer_steps = ROUnaryStruct(_LSM6DS_STEP_COUNTER, "<h")
     """The number of steps detected by the pedometer. You must enable with `pedometer_enable`
     before calling. Use ``pedometer_reset`` to reset the number of steps"""
     CHIP_ID = None
 
-    def __init__(self, i2c_bus: I2C, address: int = LSM6DS_DEFAULT_ADDRESS) -> None:
+    def __init__(
+        self, i2c_bus: I2C, address: int = LSM6DS_DEFAULT_ADDRESS, ucf: str = None
+    ) -> None:
         self._cached_accel_range = None
         self._cached_gyro_range = None
 
@@ -215,6 +240,10 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
 
         self.accelerometer_range = AccelRange.RANGE_4G  # pylint: disable=no-member
         self.gyro_range = GyroRange.RANGE_250_DPS  # pylint: disable=no-member
+        # Load and configure MLC if UCF file is provided
+        print(ucf)
+        if ucf is not None:
+            self.load_mlc(ucf)
 
     def reset(self) -> None:
         "Resets the sensor's configuration into an initial state"
@@ -376,3 +405,64 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
             return (temp - 2 ** 13) * 0.0625
 
         return temp * 0.0625
+
+    def set_embedded_functions(self, enable, emb_ab=None):
+        """DocString Here"""
+        self._mem_bank = 1
+        if enable:
+            self._emb_func_en_a = emb_ab[0]
+            self._emb_func_en_b = emb_ab[1]
+        else:
+            emb_a = self._emb_func_en_a
+            emb_b = self._emb_func_en_b
+            print(emb_a)
+            print(emb_b)
+            self._emb_func_en_a = (emb_a[0] & 0xC7,)
+            self._emb_func_en_b = (emb_b[0] & 0xE6,)
+            emb_ab = (emb_a, emb_b)
+
+        self._mem_bank = 0
+        return emb_ab
+
+    def load_mlc(self, ucf):
+        """DOCString Here"""
+        buf = bytearray(2)
+        with self.i2c_device as i2c:
+            # Load MLC config from file
+            with open(ucf, "r") as ucf_file:
+                for line in ucf_file:
+                    if line.startswith("Ac"):
+                        command = [int(v, 16) for v in line.strip().split(" ")[1:3]]
+                        print(line)
+                        buf[0] = command[0]
+                        buf[1] = command[1]
+                        i2c.write(buf)
+
+        emb_ab = self.set_embedded_functions(False)
+
+        # Disable I3C interface
+        self._i3c_disable = 1
+
+        # Enable Block Data Update
+        self._block_data_enable = 1
+
+        # Route signals on interrupt pin 1
+        self._mem_bank = 1
+        self._route_int1 &= 1
+        self._mem_bank = 1
+
+        # Configure interrupt pin mode
+        self._tap_latch = 1
+        self._tap_clear = 1
+
+        self.set_embedded_functions(True, emb_ab)
+
+    def read_mlc_output(self):
+        """DOCString here"""
+        buf = None
+        if self._mlc_status:
+            # junk = self._all_int
+            self._mem_bank = 1
+            buf = self._mlc0_src
+            self._mem_bank = 0
+        return buf

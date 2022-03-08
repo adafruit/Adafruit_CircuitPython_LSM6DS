@@ -5,7 +5,7 @@ import time
 import board
 from adafruit_lsm6ds.lsm6dsox import LSM6DSOX
 
-i2c = board.I2C()  # uses board.SCL and board.SDA
+i2c = board.STEMMA_I2C()  # uses board.SCL and board.SDA
 sensor = LSM6DSOX(i2c)
 
 while True:

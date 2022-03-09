@@ -186,8 +186,7 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
     _raw_temp_data = Struct(_LSM6DS_OUT_TEMP_L, "<h")
     _emb_func_en_a = Struct(_LSM6DS_EMB_FUNC_EN_A, "<b")
     _emb_func_en_b = Struct(_LSM6DS_EMB_FUNC_EN_B, "<b")
-    _mlc0_src = Struct(_LSM6DS_MLC0_SRC, "<b")
-    # _all_int = Struct(_LSM6DS_ALL_INT_SRC, "<bbbbbbbb")
+    _mlc0_src = Struct(_LSM6DS_MLC0_SRC, "<bbbbbbbb")
     # RWBits:
     _accel_range = RWBits(2, _LSM6DS_CTRL1_XL, 2)
     _accel_data_rate = RWBits(4, _LSM6DS_CTRL1_XL, 4)
@@ -241,7 +240,6 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
         self.accelerometer_range = AccelRange.RANGE_4G  # pylint: disable=no-member
         self.gyro_range = GyroRange.RANGE_250_DPS  # pylint: disable=no-member
         # Load and configure MLC if UCF file is provided
-        print(ucf)
         if ucf is not None:
             self.load_mlc(ucf)
 
@@ -406,8 +404,8 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
 
         return temp * 0.0625
 
-    def set_embedded_functions(self, enable, emb_ab=None):
-        """DocString Here"""
+    def _set_embedded_functions(self, enable, emb_ab=None):
+        """Enable/disable embedded functions - returns prior settings when disabled"""
         self._mem_bank = 1
         if enable:
             self._emb_func_en_a = emb_ab[0]
@@ -415,8 +413,6 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
         else:
             emb_a = self._emb_func_en_a
             emb_b = self._emb_func_en_b
-            print(emb_a)
-            print(emb_b)
             self._emb_func_en_a = (emb_a[0] & 0xC7,)
             self._emb_func_en_b = (emb_b[0] & 0xE6,)
             emb_ab = (emb_a, emb_b)
@@ -425,7 +421,7 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
         return emb_ab
 
     def load_mlc(self, ucf):
-        """DOCString Here"""
+        """Load MLC configuration file into sensor"""
         buf = bytearray(2)
         with self.i2c_device as i2c:
             # Load MLC config from file
@@ -433,12 +429,12 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
                 for line in ucf_file:
                     if line.startswith("Ac"):
                         command = [int(v, 16) for v in line.strip().split(" ")[1:3]]
-                        print(line)
                         buf[0] = command[0]
                         buf[1] = command[1]
                         i2c.write(buf)
 
-        emb_ab = self.set_embedded_functions(False)
+        # Disable embudded function -- save current settings
+        emb_ab = self._set_embedded_functions(False)
 
         # Disable I3C interface
         self._i3c_disable = 1
@@ -449,19 +445,19 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
         # Route signals on interrupt pin 1
         self._mem_bank = 1
         self._route_int1 &= 1
-        self._mem_bank = 1
+        self._mem_bank = 0
 
         # Configure interrupt pin mode
         self._tap_latch = 1
         self._tap_clear = 1
 
-        self.set_embedded_functions(True, emb_ab)
+        # Enabble Embedded Functions using previously stored settings
+        self._set_embedded_functions(True, emb_ab)
 
     def read_mlc_output(self):
-        """DOCString here"""
+        """Read MLC results"""
         buf = None
         if self._mlc_status:
-            # junk = self._all_int
             self._mem_bank = 1
             buf = self._mlc0_src
             self._mem_bank = 0

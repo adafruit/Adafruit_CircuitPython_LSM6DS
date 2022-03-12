@@ -50,6 +50,8 @@ class LSM6DSOX(LSM6DS):  # pylint: disable=too-many-instance-attributes
 
     CHIP_ID = LSM6DS_CHIP_ID
 
-    def __init__(self, i2c_bus: I2C, address: int = LSM6DS_DEFAULT_ADDRESS) -> None:
-        super().__init__(i2c_bus, address)
+    def __init__(
+        self, i2c_bus: I2C, address: int = LSM6DS_DEFAULT_ADDRESS, ucf: str = None
+    ) -> None:
+        super().__init__(i2c_bus, address, ucf)
         self._i3c_disable = True

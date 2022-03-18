@@ -12,6 +12,7 @@ from adafruit_lsm6ds.lsm6ds3trc import LSM6DS3TRC
 imupwr = digitalio.DigitalInOut(board.IMU_PWR)
 imupwr.direction = digitalio.Direction.OUTPUT
 imupwr.value = True
+time.sleep(0.1)
 
 imu_i2c = busio.I2C(board.IMU_SCL, board.IMU_SDA)
 sensor = LSM6DS3TRC(imu_i2c)

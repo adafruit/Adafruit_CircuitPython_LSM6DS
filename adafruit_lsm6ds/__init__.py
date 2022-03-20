@@ -158,7 +158,8 @@ _LSM6DS_TAP_CFG0 = const(0x56)
 _LSM6DS_TAP_CFG = const(0x58)
 _LSM6DS_MLC0_SRC = const(0x70)
 _MILLI_G_TO_ACCEL = 0.00980665
-
+_TEMPERATURE_SENSITIVITY = 256
+_TEMPERATURE_OFFSET = 25.0
 
 _LSM6DS_EMB_FUNC_EN_A = const(0x04)
 _LSM6DS_EMB_FUNC_EN_B = const(0x05)
@@ -399,10 +400,7 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
 
         temp = self._raw_temp_data[0]
 
-        if temp > 0x550:
-            return (temp - 2 ** 13) * 0.0625
-
-        return temp * 0.0625
+        return temp / _TEMPERATURE_SENSITIVITY + _TEMPERATURE_OFFSET
 
     def _set_embedded_functions(self, enable, emb_ab=None):
         """Enable/disable embedded functions - returns prior settings when disabled"""

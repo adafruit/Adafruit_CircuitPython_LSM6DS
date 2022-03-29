@@ -370,7 +370,7 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
 
     @property
     def pedometer_enable(self) -> bool:
-        """ Whether the pedometer function on the accelerometer is enabled"""
+        """Whether the pedometer function on the accelerometer is enabled"""
         return self._ped_enable and self._func_enable
 
     @pedometer_enable.setter

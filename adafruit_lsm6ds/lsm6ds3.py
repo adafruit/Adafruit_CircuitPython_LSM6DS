@@ -10,7 +10,7 @@ from . import LSM6DS
 
 class LSM6DS3(LSM6DS):  # pylint: disable=too-many-instance-attributes
 
-    """Driver for the LSM6DS33 6-axis accelerometer and gyroscope.
+    """Driver for the LSM6DS3 6-axis accelerometer and gyroscope.
 
     :param ~busio.I2C i2c_bus: The I2C bus the LSM6DS33 is connected to.
     :param int address: The I2C device address. Defaults to :const:`0x6A`
@@ -24,14 +24,14 @@ class LSM6DS3(LSM6DS):  # pylint: disable=too-many-instance-attributes
         .. code-block:: python
 
             import board
-            from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
+            from adafruit_lsm6ds.lsm6ds3 import LSM6DS3
 
         Once this is done you can define your `board.I2C` object and define your sensor object
 
         .. code-block:: python
 
             i2c = board.I2C()  # uses board.SCL and board.SDA
-            sensor = LSM6DS33(i2c)
+            sensor = LSM6DS3(i2c)
 
         Now you have access to the :attr:`acceleration` and :attr:`gyro`: attributes
 

@@ -42,4 +42,4 @@ class LSM6DS3(LSM6DS):  # pylint: disable=too-many-instance-attributes
 
     """
 
-    CHIP_ID = 0x6a
+    CHIP_ID = 0x6A

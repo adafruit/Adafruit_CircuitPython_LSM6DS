@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2020 Bryan Siepert for Adafruit Industries
+# SPDX-FileCopyrightText: Copyright (c) 2022 Edrig
 #
 # SPDX-License-Identifier: MIT
 import time

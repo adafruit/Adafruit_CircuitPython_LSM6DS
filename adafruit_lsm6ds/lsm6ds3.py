@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2020 Bryan Siepert for Adafruit Industries
+# SPDX-FileCopyrightText: Copyright (c) 2022 Edrig
 #
 # SPDX-License-Identifier: MIT
 """
@@ -12,13 +12,13 @@ class LSM6DS3(LSM6DS):  # pylint: disable=too-many-instance-attributes
 
     """Driver for the LSM6DS3 6-axis accelerometer and gyroscope.
 
-    :param ~busio.I2C i2c_bus: The I2C bus the LSM6DS33 is connected to.
+    :param ~busio.I2C i2c_bus: The I2C bus the LSM6DS3 is connected to.
     :param int address: The I2C device address. Defaults to :const:`0x6A`
 
 
     **Quickstart: Importing and using the device**
 
-        Here is an example of using the :class:`LSM6DS33` class.
+        Here is an example of using the :class:`LSM6DS3` class.
         First you will need to import the libraries to use the sensor
 
         .. code-block:: python

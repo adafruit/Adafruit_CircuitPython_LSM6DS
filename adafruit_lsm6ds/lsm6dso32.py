@@ -56,7 +56,8 @@ class LSM6DSO32(LSM6DS):  # pylint: disable=too-many-instance-attributes
         self._i3c_disable = True
         self.accelerometer_range = AccelRange.RANGE_8G  # pylint:disable=no-member
 
-    def _add_accel_ranges(self) -> None:
+    @staticmethod
+    def _add_accel_ranges() -> None:
         AccelRange.add_values(
             (
                 ("RANGE_4G", 0, 4, 0.122),

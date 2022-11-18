@@ -14,6 +14,7 @@ from adafruit_lsm6ds.lsm6dsox import LSM6DSOX as LSM6DS
 # from adafruit_lsm6ds.ism330dhcx import ISM330DHCX as LSM6DS
 
 i2c = board.I2C()  # uses board.SCL and board.SDA
+# i2c = board.STEMMA_I2C()  # For using the built-in STEMMA QT connector on a microcontroller
 sensor = LSM6DS(i2c)
 
 sensor.accelerometer_range = AccelRange.RANGE_8G

@@ -6,6 +6,7 @@ import board
 from adafruit_lsm6ds.ism330dhcx import ISM330DHCX
 
 i2c = board.I2C()  # uses board.SCL and board.SDA
+# i2c = board.STEMMA_I2C()  # For using the built-in STEMMA QT connector on a microcontroller
 sensor = ISM330DHCX(i2c)
 
 while True:

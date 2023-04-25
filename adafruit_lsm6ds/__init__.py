@@ -115,9 +115,9 @@ Rate.add_values(
         ("RATE_208_HZ", 5, 208.0, None),
         ("RATE_416_HZ", 6, 416.0, None),
         ("RATE_833_HZ", 7, 833.0, None),
-        ("RATE_1_66K_HZ", 8, 1066.0, None),
-        ("RATE_3_33K_HZ", 9, 3033.0, None),
-        ("RATE_6_66K_HZ", 10, 6066.0, None),
+        ("RATE_1_66K_HZ", 8, 1666.0, None),
+        ("RATE_3_33K_HZ", 9, 3332.0, None),
+        ("RATE_6_66K_HZ", 10, 6664.0, None),
         ("RATE_1_6_HZ", 11, 1.6, None),
     )
 )

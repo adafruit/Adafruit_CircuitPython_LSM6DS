@@ -319,7 +319,8 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
     @property
     def gyro_range(self) -> int:
         """Adjusts the range of values that the sensor can measure, from 125 Degrees/s to 2000
-        degrees/s. Note that larger ranges will be less accurate. Must be a ``GyroRange``."""
+        degrees/s. Note that larger ranges will be less accurate. Must be a ``GyroRange``.
+        """
         return self._cached_gyro_range
 
     @gyro_range.setter
@@ -348,7 +349,6 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
 
     @accelerometer_data_rate.setter
     def accelerometer_data_rate(self, value: int) -> None:
-
         if not Rate.is_valid(value):
             raise AttributeError("accelerometer_data_rate must be a `Rate`")
 

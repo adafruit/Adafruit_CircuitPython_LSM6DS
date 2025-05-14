@@ -5,11 +5,14 @@
 This module provides the `adafruit_lsm6ds.ism330dhcx` subclass of LSM6DS sensors
 ==================================================================================
 """
+
 from time import sleep
+
 from . import LSM6DS, LSM6DS_DEFAULT_ADDRESS, GyroRange, RWBit, const
 
 try:
-    import typing  # pylint: disable=unused-import
+    import typing
+
     from busio import I2C
 except ImportError:
     pass
@@ -17,8 +20,7 @@ except ImportError:
 _LSM6DS_CTRL2_G = const(0x11)
 
 
-class ISM330DHCX(LSM6DS):  # pylint: disable=too-many-instance-attributes
-
+class ISM330DHCX(LSM6DS):
     """Driver for the ISM330DHCX 6-axis accelerometer and gyroscope.
 
     :param ~busio.I2C i2c_bus: The I2C bus the device is connected to.
@@ -83,7 +85,7 @@ class ISM330DHCX(LSM6DS):  # pylint: disable=too-many-instance-attributes
         super()._set_gyro_range(value)
 
         # range uses the `FS_4000` bit
-        if value is GyroRange.RANGE_4000_DPS:  # pylint: disable=no-member
+        if value is GyroRange.RANGE_4000_DPS:
             self._gyro_range_125dps = False
             self._gyro_range_4000dps = True
         else:

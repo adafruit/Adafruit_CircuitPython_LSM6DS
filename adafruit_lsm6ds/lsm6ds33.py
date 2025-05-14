@@ -5,11 +5,11 @@
 This module provides the `adafruit_lsm6ds.lsm6ds33` subclass of LSM6DS sensors
 ===============================================================================
 """
+
 from . import LSM6DS
 
 
-class LSM6DS33(LSM6DS):  # pylint: disable=too-many-instance-attributes
-
+class LSM6DS33(LSM6DS):
     """Driver for the LSM6DS33 6-axis accelerometer and gyroscope.
 
     :param ~busio.I2C i2c_bus: The I2C bus the LSM6DS33 is connected to.

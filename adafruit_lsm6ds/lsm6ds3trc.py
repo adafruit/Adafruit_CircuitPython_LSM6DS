@@ -5,13 +5,13 @@
 This module provides the `adafruit_lsm6ds.lsm6ds3trc` subclass of LSM6DS sensors
 ===============================================================================
 """
+
 from . import LSM6DS, RWBit, const
 
 _LSM6DS_CTRL10_C = const(0x19)
 
 
-class LSM6DS3TRC(LSM6DS):  # pylint: disable=too-many-instance-attributes
-
+class LSM6DS3TRC(LSM6DS):
     """Driver for the LSM6DS3TR-C 6-axis accelerometer and gyroscope.
 
     :param ~busio.I2C i2c_bus: The I2C bus the LSM6DS3TR-C is connected to.

@@ -2,11 +2,11 @@
 #
 # SPDX-License-Identifier: MIT
 import time
+
 import board
 
 # pylint:disable=no-member
-from adafruit_lsm6ds import Rate, AccelRange, GyroRange
-
+from adafruit_lsm6ds import AccelRange, GyroRange, Rate
 from adafruit_lsm6ds.lsm6dsox import LSM6DSOX as LSM6DS
 
 # from adafruit_lsm6ds.lsm6ds33 import LSM6DS33 as LSM6DS
@@ -18,9 +18,7 @@ i2c = board.I2C()  # uses board.SCL and board.SDA
 sensor = LSM6DS(i2c)
 
 sensor.accelerometer_range = AccelRange.RANGE_8G
-print(
-    "Accelerometer range set to: %d G" % AccelRange.string[sensor.accelerometer_range]
-)
+print("Accelerometer range set to: %d G" % AccelRange.string[sensor.accelerometer_range])
 
 sensor.gyro_range = GyroRange.RANGE_2000_DPS
 print("Gyro range set to: %d DPS" % GyroRange.string[sensor.gyro_range])

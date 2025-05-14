@@ -5,17 +5,18 @@
 This module provides the `adafruit_lsm6ds.lsm6dsox` subclass of LSM6DS sensors
 ==============================================================================
 """
-from . import LSM6DS, LSM6DS_DEFAULT_ADDRESS, LSM6DS_CHIP_ID
+
+from . import LSM6DS, LSM6DS_CHIP_ID, LSM6DS_DEFAULT_ADDRESS
 
 try:
-    import typing  # pylint: disable=unused-import
+    import typing
+
     from busio import I2C
 except ImportError:
     pass
 
 
-class LSM6DSOX(LSM6DS):  # pylint: disable=too-many-instance-attributes
-
+class LSM6DSOX(LSM6DS):
     """Driver for the LSM6DSOX 6-axis accelerometer and gyroscope.
 
     :param ~busio.I2C i2c_bus: The I2C bus the LSM6DSOX is connected to.

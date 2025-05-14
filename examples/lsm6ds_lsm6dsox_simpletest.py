@@ -2,7 +2,9 @@
 #
 # SPDX-License-Identifier: MIT
 import time
+
 import board
+
 from adafruit_lsm6ds.lsm6dsox import LSM6DSOX
 
 i2c = board.I2C()  # uses board.SCL and board.SDA
@@ -10,7 +12,9 @@ i2c = board.I2C()  # uses board.SCL and board.SDA
 sensor = LSM6DSOX(i2c)
 
 while True:
-    print("Acceleration: X:%.2f, Y: %.2f, Z: %.2f m/s^2" % (sensor.acceleration))
-    print("Gyro X:%.2f, Y: %.2f, Z: %.2f radians/s" % (sensor.gyro))
+    accel_x, accel_y, accel_z = sensor.acceleration
+    print(f"Acceleration: X:{accel_x:.2f}, Y: {accel_y:.2f}, Z: {accel_z:.2f} m/s^2")
+    gyro_x, gyro_y, gyro_z = sensor.gyro
+    print(f"Gyro X:{gyro_x:.2f}, Y: {gyro_y:.2f}, Z: {gyro_z:.2f} radians/s")
     print("")
     time.sleep(0.5)

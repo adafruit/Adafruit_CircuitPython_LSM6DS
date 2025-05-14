@@ -8,9 +8,11 @@
 # https://github.com/STMicroelectronics/STMems_Machine_Learning_Core/tree/master/application_examples/lsm6dsox
 
 import time
+
 import board
+
+from adafruit_lsm6ds import AccelRange, GyroRange, Rate
 from adafruit_lsm6ds.lsm6dsox import LSM6DSOX
-from adafruit_lsm6ds import Rate, AccelRange, GyroRange
 
 i2c = board.STEMMA_I2C()  # uses board.SCL and board.SDA
 

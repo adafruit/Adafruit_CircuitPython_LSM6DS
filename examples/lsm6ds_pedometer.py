@@ -1,16 +1,18 @@
 # SPDX-FileCopyrightText: Copyright (c) 2020 Bryan Siepert for Adafruit Industries
 #
 # SPDX-License-Identifier: MIT
-""" This example shows off how to use the step counter built
+"""This example shows off how to use the step counter built
 into the ST LSM6DS series IMUs. The steps are calculated in
 the chip so you don't have to do any calculations!"""
 
 import time
+
 import board
+
+from adafruit_lsm6ds import AccelRange, Rate
 
 # pylint:disable=no-member
 from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
-from adafruit_lsm6ds import Rate, AccelRange
 
 i2c = board.I2C()  # uses board.SCL and board.SDA
 # i2c = board.STEMMA_I2C()  # For using the built-in STEMMA QT connector on a microcontroller

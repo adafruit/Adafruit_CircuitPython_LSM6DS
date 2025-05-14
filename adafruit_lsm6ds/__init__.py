@@ -56,17 +56,18 @@ __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_LSM6DS.git"
 
 import struct
-from time import sleep
 from math import radians
-from micropython import const
-from adafruit_bus_device import i2c_device
+from time import sleep
 
-from adafruit_register.i2c_struct import ROUnaryStruct, Struct
+from adafruit_bus_device import i2c_device
+from adafruit_register.i2c_bit import ROBit, RWBit
 from adafruit_register.i2c_bits import RWBits
-from adafruit_register.i2c_bit import RWBit, ROBit
+from adafruit_register.i2c_struct import ROUnaryStruct, Struct
+from micropython import const
 
 try:
-    from typing import Tuple, Optional
+    from typing import Optional, Tuple
+
     from busio import I2C
 except ImportError:
     pass
@@ -169,8 +170,7 @@ _LSM6DS_FUNC_CFG_BANK_HUB = const(1)
 _LSM6DS_FUNC_CFG_BANK_EMBED = const(2)
 
 
-class LSM6DS:  # pylint: disable=too-many-instance-attributes
-
+class LSM6DS:
     """Driver for the LSM6DSOX 6-axis accelerometer and gyroscope.
 
     :param ~busio.I2C i2c_bus: The I2C bus the LSM6DSOX is connected to.
@@ -226,20 +226,18 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
         if self.CHIP_ID is None:
             raise AttributeError("LSM6DS Parent Class cannot be directly instantiated")
         if self._chip_id != self.CHIP_ID:
-            raise RuntimeError(
-                "Failed to find %s - check your wiring!" % self.__class__.__name__
-            )
+            raise RuntimeError("Failed to find %s - check your wiring!" % self.__class__.__name__)
         self.reset()
         if not hasattr(GyroRange, "string"):
             self._add_gyro_ranges()
         self._bdu = True
 
         self._add_accel_ranges()
-        self.accelerometer_data_rate = Rate.RATE_104_HZ  # pylint: disable=no-member
-        self.gyro_data_rate = Rate.RATE_104_HZ  # pylint: disable=no-member
+        self.accelerometer_data_rate = Rate.RATE_104_HZ
+        self.gyro_data_rate = Rate.RATE_104_HZ
 
-        self.accelerometer_range = AccelRange.RANGE_4G  # pylint: disable=no-member
-        self.gyro_range = GyroRange.RANGE_250_DPS  # pylint: disable=no-member
+        self.accelerometer_range = AccelRange.RANGE_4G
+        self.gyro_range = GyroRange.RANGE_250_DPS
         # Load and configure MLC if UCF file is provided
         if ucf is not None:
             self.load_mlc(ucf)
@@ -288,15 +286,11 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
     def gyro(self) -> Tuple[float, float, float]:
         """The x, y, z angular velocity values returned in a 3-tuple and are in radians / second"""
         raw_gyro_data = self._raw_gyro_data
-        x, y, z = [radians(self._scale_gyro_data(i)) for i in raw_gyro_data]
+        x, y, z = (radians(self._scale_gyro_data(i)) for i in raw_gyro_data)
         return (x, y, z)
 
     def _scale_xl_data(self, raw_measurement: int) -> float:
-        return (
-            raw_measurement
-            * AccelRange.lsb[self._cached_accel_range]
-            * _MILLI_G_TO_ACCEL
-        )
+        return raw_measurement * AccelRange.lsb[self._cached_accel_range] * _MILLI_G_TO_ACCEL
 
     def _scale_gyro_data(self, raw_measurement: int) -> float:
         return raw_measurement * GyroRange.lsb[self._cached_gyro_range] / 1000
@@ -307,7 +301,6 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
         Note that larger ranges will be less accurate. Must be an ``AccelRange``"""
         return self._cached_accel_range
 
-    # pylint: disable=no-member
     @accelerometer_range.setter
     def accelerometer_range(self, value: int) -> None:
         if not AccelRange.is_valid(value):
@@ -333,11 +326,11 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
             raise AttributeError("range must be a `GyroRange`")
 
         # range uses `FS_G` enum
-        if value <= GyroRange.RANGE_2000_DPS:  # pylint: disable=no-member
+        if value <= GyroRange.RANGE_2000_DPS:
             self._gyro_range_125dps = False
             self._gyro_range = value
         # range uses the `FS_125` bit
-        if value is GyroRange.RANGE_125_DPS:  # pylint: disable=no-member
+        if value is GyroRange.RANGE_125_DPS:
             self._gyro_range_125dps = True
 
         self._cached_gyro_range = value  # needed to let new range settle
@@ -423,7 +416,7 @@ class LSM6DS:  # pylint: disable=too-many-instance-attributes
         buf = bytearray(2)
         with self.i2c_device as i2c:
             # Load MLC config from file
-            with open(ucf, "r") as ucf_file:
+            with open(ucf) as ucf_file:
                 for line in ucf_file:
                     if line.startswith("Ac"):
                         command = [int(v, 16) for v in line.strip().split(" ")[1:3]]

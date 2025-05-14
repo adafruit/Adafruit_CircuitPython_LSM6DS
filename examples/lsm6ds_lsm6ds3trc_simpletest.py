@@ -2,9 +2,11 @@
 #
 # SPDX-License-Identifier: MIT
 import time
+
 import board
-import digitalio
 import busio
+import digitalio
+
 from adafruit_lsm6ds.lsm6ds3trc import LSM6DS3TRC
 
 # On the Seeed XIAO nRF52840 Sense the LSM6DS3TR-C IMU is connected on a separate
@@ -18,7 +20,9 @@ imu_i2c = busio.I2C(board.IMU_SCL, board.IMU_SDA)
 sensor = LSM6DS3TRC(imu_i2c)
 
 while True:
-    print("Acceleration: X:%.2f, Y: %.2f, Z: %.2f m/s^2" % (sensor.acceleration))
-    print("Gyro X:%.2f, Y: %.2f, Z: %.2f radians/s" % (sensor.gyro))
+    accel_x, accel_y, accel_z = sensor.acceleration
+    print(f"Acceleration: X:{accel_x:.2f}, Y: {accel_y:.2f}, Z: {accel_z:.2f} m/s^2")
+    gyro_x, gyro_y, gyro_z = sensor.gyro
+    print(f"Gyro X:{gyro_x:.2f}, Y: {gyro_y:.2f}, Z: {gyro_z:.2f} radians/s")
     print("")
     time.sleep(0.5)

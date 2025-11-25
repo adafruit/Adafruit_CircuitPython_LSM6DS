@@ -22,7 +22,7 @@ from adafruit_lsm6ds.lsm6ds3trc import LSM6DS3TRC as LSM
 
 i2c = board.I2C()  # uses board.SCL and board.SDA
 # i2c = board.STEMMA_I2C()  # For using the built-in STEMMA QT connector on a microcontroller
-sensor = LSM6DS33(i2c)
+sensor = LSM(i2c)
 
 # enable accelerometer sensor @ 2G and 26 Hz
 sensor.accelerometer_range = AccelRange.RANGE_2G

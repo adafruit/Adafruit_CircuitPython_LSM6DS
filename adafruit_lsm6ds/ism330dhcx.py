@@ -20,6 +20,7 @@ except ImportError:
 _LSM6DS_CTRL2_G = const(0x11)
 _ISM330DHCX_CTRL6_C = const(0x15)
 
+
 class ISM330DHCX(LSM6DS):
     """Driver for the ISM330DHCX 6-axis accelerometer and gyroscope.
 

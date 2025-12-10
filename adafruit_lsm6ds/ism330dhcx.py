@@ -18,6 +18,7 @@ except ImportError:
     pass
 
 _LSM6DS_CTRL2_G = const(0x11)
+_ISM330DHCX_CTRL6_C = const(0x15)
 
 
 class ISM330DHCX(LSM6DS):
@@ -56,6 +57,8 @@ class ISM330DHCX(LSM6DS):
 
     CHIP_ID = 0x6B
     _gyro_range_4000dps = RWBit(_LSM6DS_CTRL2_G, 0)
+    _supports_low_power_odr = True
+    low_power_mode = RWBit(_ISM330DHCX_CTRL6_C, 4)
 
     def __init__(self, i2c_bus: I2C, address: int = LSM6DS_DEFAULT_ADDRESS) -> None:
         GyroRange.add_values(

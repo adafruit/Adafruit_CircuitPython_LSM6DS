@@ -345,6 +345,10 @@ class LSM6DS:
         if not Rate.is_valid(value):
             raise AttributeError("accelerometer_data_rate must be a `Rate`")
 
+        # ISM330DHCX requires enabling low-power mode for 1.6 Hz ODR
+        if value == Rate.RATE_1_6_HZ and getattr(self, "_supports_low_power_odr", False):
+            self.low_power_mode = True
+
         self._accel_data_rate = value
         # sleep(.2) # needed to let new range settle
 

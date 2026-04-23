@@ -18,17 +18,17 @@ i2c = board.I2C()  # uses board.SCL and board.SDA
 sensor = LSM6DS(i2c)
 
 sensor.accelerometer_range = AccelRange.RANGE_8G
-print("Accelerometer range set to: %d G" % AccelRange.string[sensor.accelerometer_range])
+print(f"Accelerometer range set to: {AccelRange.string[sensor.accelerometer_range]:d} G")
 
 sensor.gyro_range = GyroRange.RANGE_2000_DPS
-print("Gyro range set to: %d DPS" % GyroRange.string[sensor.gyro_range])
+print(f"Gyro range set to: {GyroRange.string[sensor.gyro_range]:d} DPS")
 
 sensor.accelerometer_data_rate = Rate.RATE_1_66K_HZ
 # sensor.accelerometer_data_rate = Rate.RATE_12_5_HZ
-print("Accelerometer rate set to: %d HZ" % Rate.string[sensor.accelerometer_data_rate])
+print(f"Accelerometer rate set to: {Rate.string[sensor.accelerometer_data_rate]:d} HZ")
 
 sensor.gyro_data_rate = Rate.RATE_1_66K_HZ
-print("Gyro rate set to: %d HZ" % Rate.string[sensor.gyro_data_rate])
+print(f"Gyro rate set to: {Rate.string[sensor.gyro_data_rate]:d} HZ")
 
 while True:
     print(

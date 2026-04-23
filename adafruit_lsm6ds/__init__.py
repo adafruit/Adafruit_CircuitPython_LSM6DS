@@ -226,7 +226,7 @@ class LSM6DS:
         if self.CHIP_ID is None:
             raise AttributeError("LSM6DS Parent Class cannot be directly instantiated")
         if self._chip_id != self.CHIP_ID:
-            raise RuntimeError("Failed to find %s - check your wiring!" % self.__class__.__name__)
+            raise RuntimeError(f"Failed to find {self.__class__.__name__} - check your wiring!")
         self.reset()
         if not hasattr(GyroRange, "string"):
             self._add_gyro_ranges()
